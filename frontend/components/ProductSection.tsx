@@ -54,13 +54,9 @@ const bestSellingProducts = [
   },
 ];
 
-function ProductList({
-  products,
-}: {
-  products: typeof newProducts;
-}) {
+function ProductList({ products }: { products: typeof newProducts }) {
   return (
-    <div>
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {products.map((product) => (
         <ProductCard
           key={product.id}
@@ -76,16 +72,16 @@ function ProductList({
 
 export default function ProductSection() {
   return (
-    <>
+    <div className="mx-auto max-w-7xl px-6 py-16">
       <section>
-        <h2>Sản phẩm mới</h2>
+        <h2 className="text-2xl font-bold text-white">Sản phẩm mới</h2>
         <ProductList products={newProducts} />
       </section>
 
-      <section>
-        <h2>Sản phẩm bán chạy</h2>
+      <section className="mt-16">
+        <h2 className="text-2xl font-bold text-white">Sản phẩm bán chạy</h2>
         <ProductList products={bestSellingProducts} />
       </section>
-    </>
+    </div>
   );
 }
