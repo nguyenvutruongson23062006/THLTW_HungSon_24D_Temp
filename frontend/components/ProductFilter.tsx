@@ -28,8 +28,8 @@ export default function ProductFilter({
           type="text"
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}
-          placeholder="Tìm kiếm sản phẩm..."
-          className="flex-1 rounded-lg border px-4 py-3 outline-none focus:border-blue-500"
+          placeholder="Tìm kiếm mô tô..."
+          className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-blue-500"
         />
 
         <button
@@ -47,10 +47,9 @@ export default function ProductFilter({
           className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-blue-500"
           defaultValue="all"
         >
-          <option value="all">Tất cả danh mục</option>
-          <option value="phone">Điện thoại</option>
-          <option value="laptop">Laptop</option>
-          <option value="audio">Tai nghe</option>
+          <option value="all">Tất cả loại xe</option>
+          <option value="sport">Sport</option>
+          <option value="naked">Naked</option>
         </select>
 
         <select

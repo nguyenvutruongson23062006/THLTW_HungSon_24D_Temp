@@ -1,16 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { CartItem, getCart, removeFromCart, clearCart } from "@/lib/cart";
+import { useState } from "react";
+import { getCart, removeFromCart, clearCart, type CartItem } from "@/lib/cart";
 
 export default function CartPage() {
-  const [cart, setCart] = useState<CartItem[]>([]);
-
-  useEffect(() => {
-    setCart(getCart());
-  }, []);
+  const [cart, setCart] = useState<CartItem[]>(() => getCart());
 
   function handleRemove(id: number) {
     removeFromCart(id);
@@ -29,99 +23,75 @@ export default function CartPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
-      <h1 className="mb-8 text-3xl font-bold text-gray-900">Giỏ hàng</h1>
+      <h1 className="mb-8 text-3xl font-bold text-white">Giỏ hàng</h1>
 
       {cart.length === 0 ? (
-        <div className="rounded-xl border bg-white p-10 text-center">
-          <p className="text-lg text-gray-500">Giỏ hàng đang trống.</p>
-
-          <Link
-            href="/products"
-            className="mt-6 inline-block rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
-          >
-            Tiếp tục mua sắm
-          </Link>
-        </div>
+        <p className="text-gray-400">Giỏ hàng đang trống.</p>
       ) : (
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="space-y-4 lg:col-span-2">
+        <>
+          <div className="space-y-4">
             {cart.map((item) => (
               <div
                 key={item.id}
-                className="flex gap-5 rounded-xl border bg-white p-5"
+                className="flex items-center gap-6 rounded-xl border bg-white p-4"
               >
-                <Image
+                <img
                   src={item.image}
                   alt={item.ten}
-                  width={120}
-                  height={120}
-                  className="h-28 w-28 rounded-lg object-cover"
+                  className="h-24 w-24 rounded-lg object-cover"
                 />
 
-                <div className="flex flex-1 flex-col justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      {item.ten}
-                    </h2>
+                <div className="flex-1">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    {item.ten}
+                  </h2>
 
-                    <p className="mt-2 font-bold text-blue-600">
-                      {item.giaKhuyenMai.toLocaleString("vi-VN")} ₫
-                    </p>
+                  <p className="mt-2 font-bold text-blue-600">
+                    {item.giaKhuyenMai.toLocaleString("vi-VN")} ₫
+                  </p>
 
-                    <p className="mt-1 text-gray-500">
-                      Số lượng: {item.quantity}
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleRemove(item.id)}
-                    className="mt-3 w-fit text-sm font-medium text-red-600 hover:underline"
-                  >
-                    Xóa khỏi giỏ hàng
-                  </button>
+                  <p className="mt-1 text-gray-600">
+                    Số lượng: {item.quantity}
+                  </p>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleRemove(item.id)}
+                  className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
+                >
+                  Xóa
+                </button>
               </div>
             ))}
-
-            <button
-              type="button"
-              onClick={handleClear}
-              className="rounded-lg border border-red-500 px-5 py-2 text-red-600 hover:bg-red-50"
-            >
-              Xóa toàn bộ giỏ hàng
-            </button>
           </div>
 
-          <div className="h-fit rounded-xl border bg-white p-6">
-            <h2 className="text-xl font-bold text-gray-900">Tổng đơn hàng</h2>
-
-            <div className="mt-6 flex justify-between">
-              <span className="text-gray-600">Tạm tính</span>
-
-              <span className="font-semibold text-gray-900">
+          <div className="mt-8 flex flex-col items-start justify-between gap-4 border-t pt-6 sm:flex-row sm:items-center">
+            <div>
+              <p className="text-lg text-white">Tổng tiền:</p>
+              <p className="text-2xl font-bold text-blue-500">
                 {total.toLocaleString("vi-VN")} ₫
-              </span>
+              </p>
             </div>
 
-            <div className="mt-4 border-t pt-4">
-              <div className="flex justify-between">
-                <span className="font-semibold text-gray-900">Tổng cộng</span>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleClear}
+                className="rounded-lg bg-gray-600 px-5 py-3 font-semibold text-white hover:bg-gray-700"
+              >
+                Xóa giỏ hàng
+              </button>
 
-                <span className="text-xl font-bold text-blue-600">
-                  {total.toLocaleString("vi-VN")} ₫
-                </span>
-              </div>
+              <button
+                type="button"
+                className="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+              >
+                Đặt hàng
+              </button>
             </div>
-
-            <button
-              type="button"
-              className="mt-6 w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
-            >
-              Tiến hành đặt hàng
-            </button>
           </div>
-        </div>
+        </>
       )}
     </main>
   );

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -7,31 +8,59 @@ import ProductFilter from "@/components/ProductFilter";
 const products = [
   {
     id: 1,
-    ten: "iPhone 16",
-    gia: 19990000,
-    image: "/products/iphone-16.jpg",
-    category: "phone",
+    ten: "Yamaha YZF-R7",
+    gia: 269000000,
+    image: "/products/yamaha-r7.jpg",
+    category: "sport",
   },
   {
     id: 2,
-    ten: "MacBook Air M3",
-    gia: 24990000,
-    image: "/products/macbook-air.jpg",
-    category: "laptop",
+    ten: "Yamaha MT-07",
+    gia: 189000000,
+    image: "/products/yamaha-mt07.jpg",
+    category: "naked",
   },
   {
     id: 3,
-    ten: "AirPods Pro",
-    gia: 5990000,
-    image: "/products/airpods-pro.jpg",
-    category: "audio",
+    ten: "Honda CBR650R",
+    gia: 254000000,
+    image: "/products/honda-cbr650r.jpg",
+    category: "sport",
   },
   {
     id: 4,
-    ten: "Samsung Galaxy S25",
-    gia: 21990000,
-    image: "/products/galaxy-s25.jpg",
-    category: "phone",
+    ten: "Honda CB650R",
+    gia: 249000000,
+    image: "/products/honda-cb650r.jpg",
+    category: "naked",
+  },
+  {
+    id: 5,
+    ten: "Kawasaki Ninja 650",
+    gia: 209000000,
+    image: "/products/kawasaki-ninja-650.jpg",
+    category: "sport",
+  },
+  {
+    id: 6,
+    ten: "Kawasaki Z650",
+    gia: 194000000,
+    image: "/products/kawasaki-z650.jpg",
+    category: "naked",
+  },
+  {
+    id: 7,
+    ten: "Suzuki GSX-8R",
+    gia: 285000000,
+    image: "/products/suzuki-gsx-8r.jpg",
+    category: "sport",
+  },
+  {
+    id: 8,
+    ten: "Triumph Daytona 660",
+    gia: 299000000,
+    image: "/products/triumph-daytona-660.jpg",
+    category: "sport",
   },
 ];
 
@@ -45,22 +74,29 @@ export default function ProductsPage() {
       .toLowerCase()
       .includes(search.toLowerCase());
 
-    const matchCategory = category === "all" || product.category === category;
+    const matchCategory =
+      category === "all" || product.category === category;
 
     return matchSearch && matchCategory;
   });
 
   if (sort === "price-asc") {
-    filteredProducts = [...filteredProducts].sort((a, b) => a.gia - b.gia);
+    filteredProducts = [...filteredProducts].sort(
+      (a, b) => a.gia - b.gia
+    );
   }
 
   if (sort === "price-desc") {
-    filteredProducts = [...filteredProducts].sort((a, b) => b.gia - a.gia);
+    filteredProducts = [...filteredProducts].sort(
+      (a, b) => b.gia - a.gia
+    );
   }
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
-      <h1 className="mb-8 text-3xl font-bold text-white">Tất cả sản phẩm</h1>
+      <h1 className="mb-8 text-3xl font-bold text-white">
+        Tất cả mô tô
+      </h1>
 
       <ProductFilter
         onSearch={setSearch}
@@ -69,7 +105,9 @@ export default function ProductsPage() {
       />
 
       {filteredProducts.length === 0 ? (
-        <p className="text-gray-500">Không tìm thấy sản phẩm phù hợp.</p>
+        <p className="text-gray-500">
+          Không tìm thấy mô tô phù hợp.
+        </p>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {filteredProducts.map((product) => (
@@ -86,3 +124,4 @@ export default function ProductsPage() {
     </main>
   );
 }
+
