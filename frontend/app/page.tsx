@@ -6,18 +6,18 @@ import BlogCard from "@/components/BlogCard";
 const blogs = [
   {
     id: 1,
-    title: "Top sản phẩm công nghệ đáng mua năm 2026",
+    title: "Top sản phẩm hiệu năng đáng mua năm 2026",
     description: "Khám phá những sản phẩm công nghệ nổi bật và đáng chú ý.",
   },
   {
     id: 2,
-    title: "Cách chọn laptop phù hợp với nhu cầu",
-    description: "Một số tiêu chí giúp bạn chọn laptop phù hợp.",
+    title: "Cách chọn moto phù hợp với nhu cầu",
+    description: "Một số tiêu chí giúp bạn chọn chiếc moto phù hợp.",
   },
   {
     id: 3,
-    title: "Những phụ kiện công nghệ cần có",
-    description: "Các phụ kiện hữu ích cho công việc và giải trí.",
+    title: "Những phụ kiện cần có",
+    description: "Các phụ kiện hữu ích cho chuyến đi.",
   },
 ];
 

@@ -1,4 +1,4 @@
-const categories = ["Điện thoại", "Laptop", "Tai nghe", "Phụ kiện"];
+const categories = ["Mô tô", "Phụ kiện", "Dầu nhớt", "Đồ bảo hộ"];
 
 export default function CategorySection() {
   return (
