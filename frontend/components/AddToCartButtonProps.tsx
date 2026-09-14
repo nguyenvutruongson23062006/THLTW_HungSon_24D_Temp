@@ -8,6 +8,7 @@ type AddToCartButtonProps = {
   gia: number;
   giaKhuyenMai: number;
   image: string;
+  tonKho: number;
 };
 
 export default function AddToCartButton({
@@ -16,9 +17,15 @@ export default function AddToCartButton({
   gia,
   giaKhuyenMai,
   image,
+  tonKho,
 }: AddToCartButtonProps) {
   function handleAddToCart() {
-    addToCart({
+    if (tonKho <= 0) {
+      alert("Sản phẩm đã hết hàng.");
+      return;
+    }
+
+    const added = addToCart({
       id,
       ten,
       gia,
@@ -27,16 +34,23 @@ export default function AddToCartButton({
       quantity: 1,
     });
 
-    alert("Đã thêm sản phẩm vào giỏ hàng!");
+    if (added) {
+      alert("Đã thêm sản phẩm vào giỏ hàng!");
+    } else {
+      alert("Không thể thêm sản phẩm vào giỏ hàng.");
+    }
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleAddToCart}
-      className="mt-8 rounded-lg bg-blue-600 px-8 py-4 font-semibold text-white transition hover:bg-blue-700"
-    >
-      Thêm vào giỏ hàng
-    </button>
+    <div className="mt-8">
+      <button
+        type="button"
+        onClick={handleAddToCart}
+        disabled={tonKho <= 0}
+        className="rounded-lg bg-blue-600 px-8 py-4 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+      >
+        {tonKho > 0 ? "Thêm vào giỏ hàng" : "Hết hàng"}
+      </button>
+    </div>
   );
 }
