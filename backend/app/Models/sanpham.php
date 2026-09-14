@@ -66,9 +66,9 @@ class SanPham extends Model
         );
     }
     public function thuongHieu()
-{
-    return $this->belongsTo(
-        ThuongHieu::class, 'ma_thuong_hieu', 'ma_thuong_hieu'
-    );
-}
+    {
+        return $this->belongsTo(
+            ThuongHieu::class, 'ma_thuong_hieu', 'ma_thuong_hieu'
+        );
+    }
 }
