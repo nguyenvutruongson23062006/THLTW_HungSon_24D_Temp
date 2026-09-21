@@ -32,7 +32,6 @@ class Danhmuc extends Model
         'ngay_tao',
         'ngay_cap_nhat',
     ];
-
     protected $casts = [
         'ma_danh_muc_cha' => 'integer',
         'ngay_tao' => 'datetime',
