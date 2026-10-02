@@ -25,4 +25,27 @@ class UserController extends Controller
             'user' => $user,
         ]);
     }
+    public function changePassword(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'mat_khau_cu' => ['required'],
+            'mat_khau_moi' => ['required', 'min:6', 'confirmed'],
+        ]);
+
+        if (!password_verify($request->mat_khau_cu, $user->mat_khau)) {
+            return response()->json([
+                'message' => 'Mật khẩu cũ không đúng'
+            ], 422);
+        }
+
+        $user->update([
+            'mat_khau' => $request->mat_khau_moi,
+        ]);
+
+        return response()->json([
+            'message' => 'Đổi mật khẩu thành công'
+        ]);
+    }
 }
