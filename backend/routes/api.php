@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DanhMucController;
 use App\Http\Controllers\ThuongHieuController;
 use App\Http\Controllers\SanPhamController;
+use App\Http\Controllers\UserController;
 
 // ==================== AUTH ====================
 
@@ -23,6 +24,11 @@ Route::get('/me', [AuthController::class, 'me'])
 Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth:sanctum');
 
+Route::put('/profile', [UserController::class, 'updateProfile'])
+    ->middleware('auth:sanctum');
+
+Route::post('/change-password', [UserController::class, 'changePassword'])
+    ->middleware('auth:sanctum');       
 
 // ==================== DANH MỤC ====================
 
