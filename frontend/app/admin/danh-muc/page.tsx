@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { SyntheticEvent, useState } from "react";
 
 type DanhMucMau = {
   ma_danh_muc: number;
@@ -126,7 +126,7 @@ export default function QuanLyDanhMuc() {
     setDangMoForm(true);
   }
 
-  function xuLyLuu(event: FormEvent<HTMLFormElement>) {
+  function xuLyLuu(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const danhMucMoi: DanhMucMau = {
