@@ -7,7 +7,7 @@ type DonHang = {
   khachHang: string;
   sanPham: string;
   tongTien: string;
-  trangThai: "Đang xử lý" | "Đã giao" | "Đang giao" | "Đã hủy";
+  trangThai: "Đang xử lý" | "Đã giao" | "Đang giao";
   ngayDat: string;
 };
 
@@ -44,6 +44,14 @@ const danhSachDonHang: DonHang[] = [
     trangThai: "Đã giao",
     ngayDat: "17/09/2025",
   },
+  {
+    maDon: "DH0008",
+    khachHang: "Hoàng Văn E",
+    sanPham: "Yamaha Grande",
+    tongTien: "45.000.000đ",
+    trangThai: "Đang xử lý",
+    ngayDat: "16/09/2025",
+  },
 ];
 
 const danhSachTonKho = [
@@ -54,11 +62,41 @@ const danhSachTonKho = [
   { sanPham: "Suzuki Raider R150", tonKho: 3, trangThai: "Sắp hết" },
 ];
 
+const theThongKe = [
+  {
+    nhan: "Doanh thu",
+    giaTri: "482.500.000đ",
+    thayDoi: "12,5%",
+    bieuTuong: "◉",
+    mau: "bg-sky-100 text-sky-600",
+  },
+  {
+    nhan: "Đơn hàng",
+    giaTri: "86",
+    thayDoi: "8,2%",
+    bieuTuong: "▣",
+    mau: "bg-emerald-100 text-emerald-600",
+  },
+  {
+    nhan: "Xe đã bán",
+    giaTri: "72",
+    thayDoi: "15,3%",
+    bieuTuong: "♢",
+    mau: "bg-amber-100 text-amber-600",
+  },
+  {
+    nhan: "Khách hàng",
+    giaTri: "65",
+    thayDoi: "10,7%",
+    bieuTuong: "♙",
+    mau: "bg-violet-100 text-violet-600",
+  },
+];
+
 const mauTrangThai: Record<string, string> = {
   "Đang xử lý": "bg-amber-100 text-amber-700",
   "Đã giao": "bg-emerald-100 text-emerald-700",
   "Đang giao": "bg-sky-100 text-sky-700",
-  "Đã hủy": "bg-rose-100 text-rose-700",
   "Còn hàng": "bg-emerald-100 text-emerald-700",
   "Sắp hết": "bg-rose-100 text-rose-700",
 };
@@ -71,7 +109,6 @@ export default function TrangTongQuanQuanTri() {
     const khopTuKhoa = `${donHang.maDon} ${donHang.khachHang} ${donHang.sanPham}`
       .toLowerCase()
       .includes(tuKhoa.toLowerCase());
-
     const khopTrangThai =
       trangThai === "Tất cả" || donHang.trangThai === trangThai;
 
@@ -82,60 +119,51 @@ export default function TrangTongQuanQuanTri() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
-          <p className="text-sm font-medium text-sky-600">Tổng quan</p>
-
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
             Dashboard
           </h1>
-
           <p className="mt-1 text-sm text-slate-500">
-            Theo dõi hoạt động kinh doanh của cửa hàng.
+            Tổng quan hoạt động kinh doanh của cửa hàng.
           </p>
         </div>
 
         <button className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm">
-          Tháng 9, 2025
+          Lịch tháng 9, 2025 ⌄
         </button>
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          ["Doanh thu", "482.500.000đ", "12,5%"],
-          ["Đơn hàng", "86", "8,2%"],
-          ["Xe đã bán", "72", "15,3%"],
-          ["Khách hàng", "65", "10,7%"],
-        ].map(([nhan, giaTri, thayDoi]) => (
+        {theThongKe.map((the) => (
           <article
-            key={nhan}
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            key={the.nhan}
+            className="flex items-center gap-4 rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm"
           >
-            <p className="text-sm text-slate-500">{nhan}</p>
-
-            <p className="mt-3 text-2xl font-bold text-slate-900">
-              {giaTri}
-            </p>
-
-            <p className="mt-2 text-xs text-emerald-600">
-              ↑ {thayDoi}{" "}
-              <span className="text-slate-400">
-                so với tháng trước
-              </span>
-            </p>
+            <span
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl ${the.mau}`}
+            >
+              {the.bieuTuong}
+            </span>
+            <div>
+              <p className="text-sm text-slate-500">{the.nhan}</p>
+              <p className="mt-1 text-2xl font-bold text-slate-900">
+                {the.giaTri}
+              </p>
+              <p className="mt-1 text-xs text-emerald-600">
+                ↑ {the.thayDoi} <span className="text-slate-400">so với tháng trước</span>
+              </p>
+            </div>
           </article>
         ))}
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.45fr_1fr]">
-        <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <article className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
           <div className="flex flex-col gap-3 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg text-slate-700">⌂</span>
               <h2 className="font-semibold text-slate-900">
                 Đơn hàng gần đây
               </h2>
-
-              <p className="mt-1 text-xs text-slate-500">
-                Danh sách đơn hàng mới nhất
-              </p>
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -145,7 +173,6 @@ export default function TrangTongQuanQuanTri() {
                 placeholder="Tìm đơn hàng..."
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500"
               />
-
               <select
                 value={trangThai}
                 onChange={(event) => setTrangThai(event.target.value)}
@@ -155,52 +182,41 @@ export default function TrangTongQuanQuanTri() {
                 <option>Đang xử lý</option>
                 <option>Đang giao</option>
                 <option>Đã giao</option>
-                <option>Đã hủy</option>
               </select>
             </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-170 text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+            <table className="w-full min-w-180 text-left text-sm">
+              <thead className="bg-slate-50 text-xs text-slate-500">
                 <tr>
                   <th className="px-5 py-3 font-medium">Mã đơn</th>
                   <th className="px-5 py-3 font-medium">Khách hàng</th>
-                  <th className="px-5 py-3 font-medium">Sản phẩm</th>
+                  <th className="px-5 py-3 font-medium">Xe mua</th>
                   <th className="px-5 py-3 font-medium">Tổng tiền</th>
                   <th className="px-5 py-3 font-medium">Trạng thái</th>
                   <th className="px-5 py-3 font-medium">Ngày đặt</th>
                 </tr>
               </thead>
-
               <tbody className="divide-y divide-slate-100">
                 {donHangHienThi.map((donHang) => (
                   <tr key={donHang.maDon} className="text-slate-700">
-                    <td className="px-5 py-4 font-medium text-slate-900">
+                    <td className="px-5 py-3.5 font-medium text-slate-900">
                       {donHang.maDon}
                     </td>
-
-                    <td className="px-5 py-4">
-                      {donHang.khachHang}
-                    </td>
-
-                    <td className="px-5 py-4">
-                      {donHang.sanPham}
-                    </td>
-
-                    <td className="px-5 py-4 font-medium">
+                    <td className="px-5 py-3.5">{donHang.khachHang}</td>
+                    <td className="px-5 py-3.5">{donHang.sanPham}</td>
+                    <td className="px-5 py-3.5 font-medium">
                       {donHang.tongTien}
                     </td>
-
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-3.5">
                       <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${mauTrangThai[donHang.trangThai]}`}
+                        className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${mauTrangThai[donHang.trangThai]}`}
                       >
                         {donHang.trangThai}
                       </span>
                     </td>
-
-                    <td className="px-5 py-4 text-slate-500">
+                    <td className="px-5 py-3.5 text-slate-500">
                       {donHang.ngayDat}
                     </td>
                   </tr>
@@ -216,38 +232,31 @@ export default function TrangTongQuanQuanTri() {
           )}
         </article>
 
-        <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 p-5">
-            <h2 className="font-semibold text-slate-900">
-              Tình trạng kho
-            </h2>
-
-            <p className="mt-1 text-xs text-slate-500">
-              Theo dõi số lượng sản phẩm hiện có
-            </p>
+        <article className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm">
+          <div className="flex items-center gap-2 border-b border-slate-100 p-5">
+            <span className="text-lg text-slate-700">⬡</span>
+            <h2 className="font-semibold text-slate-900">Tình trạng kho</h2>
           </div>
 
           <div className="divide-y divide-slate-100">
             {danhSachTonKho.map((sanPham) => (
               <div
                 key={sanPham.sanPham}
-                className="flex items-center justify-between gap-4 px-5 py-4"
+                className="flex items-center justify-between gap-4 px-5 py-3.5"
               >
-                <div>
-                  <p className="text-sm font-medium text-slate-800">
-                    {sanPham.sanPham}
-                  </p>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    Tồn kho: {sanPham.tonKho}
-                  </p>
+                <p className="text-sm font-medium text-slate-700">
+                  {sanPham.sanPham}
+                </p>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-slate-500">
+                    {sanPham.tonKho}
+                  </span>
+                  <span
+                    className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${mauTrangThai[sanPham.trangThai]}`}
+                  >
+                    {sanPham.trangThai}
+                  </span>
                 </div>
-
-                <span
-                  className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${mauTrangThai[sanPham.trangThai]}`}
-                >
-                  {sanPham.trangThai}
-                </span>
               </div>
             ))}
           </div>
