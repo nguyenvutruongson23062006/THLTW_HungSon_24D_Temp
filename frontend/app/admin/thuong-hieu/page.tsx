@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { SyntheticEvent, useState } from "react";
 
 type NhanHangMau = {
   ma_thuong_hieu: number;
@@ -124,7 +124,7 @@ export default function QuanLyNhanHang() {
     setDangMoForm(true);
   }
 
-  function xuLyLuu(event: FormEvent<HTMLFormElement>) {
+  function xuLyLuu(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const nhanHangMoi: NhanHangMau = {

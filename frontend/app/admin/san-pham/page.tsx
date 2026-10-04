@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { SyntheticEvent, useState } from "react";
 
 type SanPhamMau = {
   ma_san_pham: number;
@@ -130,7 +130,7 @@ export default function QuanLySanPham() {
     setDangMoForm(false);
   }
 
-  function xuLyLuu(event: FormEvent<HTMLFormElement>) {
+  function xuLyLuu(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const duLieu: SanPhamMau = {
