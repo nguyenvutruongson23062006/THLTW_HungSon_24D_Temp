@@ -3,11 +3,15 @@
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import ProductFilter from "@/components/ProductFilter";
-import { products } from "@/lib/products";
+import { getProducts, type Product } from "@/lib/products";
 
 const PRODUCTS_PER_PAGE = 4;
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [motoType, setMotoType] = useState("all");
@@ -16,6 +20,34 @@ export default function ProductsPage() {
   const [sort, setSort] = useState("default");
   const [currentPage, setCurrentPage] = useState(1);
   const [urlReady, setUrlReady] = useState(false);
+
+  // =========================
+  // LOAD PRODUCTS FROM LARAVEL
+  // =========================
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await getProducts();
+
+        setProducts(data);
+      } catch (error) {
+        console.error("Lỗi tải sản phẩm:", error);
+        setError("Không thể tải danh sách sản phẩm.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProducts();
+  }, []);
+
+  // =========================
+  // READ URL
+  // =========================
 
   useEffect(() => {
     function readUrl() {
@@ -41,6 +73,10 @@ export default function ProductsPage() {
       window.removeEventListener("popstate", readUrl);
     };
   }, []);
+
+  // =========================
+  // UPDATE URL
+  // =========================
 
   useEffect(() => {
     if (!urlReady) return;
@@ -82,6 +118,10 @@ export default function ProductsPage() {
     window.history.replaceState(null, "", nextUrl);
   }, [brand, category, currentPage, motoType, price, search, sort, urlReady]);
 
+  // =========================
+  // FILTER HANDLERS
+  // =========================
+
   function handleSearch(keyword: string) {
     setSearch(keyword);
     setCurrentPage(1);
@@ -117,6 +157,10 @@ export default function ProductsPage() {
     setCurrentPage(1);
   }
 
+  // =========================
+  // FILTER PRODUCTS
+  // =========================
+
   let filteredProducts = products.filter((product) => {
     const matchSearch = product.ten
       .toLowerCase()
@@ -149,6 +193,10 @@ export default function ProductsPage() {
     );
   });
 
+  // =========================
+  // SORT
+  // =========================
+
   if (sort === "price-asc") {
     filteredProducts = [...filteredProducts].sort(
       (a, b) => a.giaKhuyenMai - b.giaKhuyenMai,
@@ -165,6 +213,10 @@ export default function ProductsPage() {
     filteredProducts = [...filteredProducts].sort((a, b) => b.id - a.id);
   }
 
+  // =========================
+  // PAGINATION
+  // =========================
+
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
 
   const safePage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1;
@@ -175,6 +227,10 @@ export default function ProductsPage() {
     startIndex,
     startIndex + PRODUCTS_PER_PAGE,
   );
+
+  // =========================
+  // RENDER
+  // =========================
 
   return (
     <main className="w-full px-6 py-12">
@@ -195,7 +251,15 @@ export default function ProductsPage() {
         onSortChange={handleSortChange}
       />
 
-      {filteredProducts.length === 0 ? (
+      {loading ? (
+        <div className="rounded-xl bg-white p-8 text-center">
+          <p className="text-gray-500">Đang tải sản phẩm...</p>
+        </div>
+      ) : error ? (
+        <div className="rounded-xl bg-white p-8 text-center">
+          <p className="text-red-500">{error}</p>
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="rounded-xl bg-white p-8 text-center">
           <p className="text-gray-500">Không tìm thấy sản phẩm phù hợp.</p>
         </div>
