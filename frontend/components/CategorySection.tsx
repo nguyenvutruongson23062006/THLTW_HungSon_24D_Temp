@@ -4,22 +4,22 @@ const categories = [
   {
     name: "Mô tô",
     description: "Sport và Naked",
-    href: "/products?category=4",
+    href: "/products?category=moto",
   },
   {
     name: "Phụ kiện",
     description: "Phụ kiện dành cho xe",
-    href: "/products?category=7",
+    href: "/products?category=accessory",
   },
   {
     name: "Dầu nhớt",
     description: "Dầu nhớt và sản phẩm chăm sóc xe",
-    href: "/products?category=6",
+    href: "/products?category=oil",
   },
   {
     name: "Đồ bảo hộ",
     description: "Trang bị bảo hộ khi lái xe",
-    href: "/products?category=5",
+    href: "/products?category=gear",
   },
 ];
 

@@ -154,8 +154,17 @@ export default function ProductsPage() {
 
     // Danh mục từ DB
     const matchCategory =
-      category === "all" || product.categoryId === Number(category);
-
+      category === "all"
+        ? true
+        : category === "moto"
+          ? [1, 2, 3, 4].includes(product.categoryId)
+          : category === "accessory"
+            ? [7, 9, 10].includes(product.categoryId)
+            : category === "oil"
+              ? product.categoryId === 6
+              : category === "gear"
+                ? product.categoryId === 5
+                : product.categoryId === Number(category);
     // Thương hiệu từ DB
     const matchBrand = brand === "all" || product.brandId === Number(brand);
 
