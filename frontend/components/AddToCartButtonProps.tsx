@@ -25,15 +25,15 @@ export default function AddToCartButton({
       return;
     }
 
-    const added = addToCart({
-      id,
-      ten,
-      gia,
-      giaKhuyenMai,
-      image,
-      quantity: 1,
-    });
-
+  const added = addToCart({
+    id,
+    ten,
+    gia,
+    giaKhuyenMai,
+    image,
+    quantity: 1,
+    tonKho,
+  });
     if (added) {
       alert("Đã thêm sản phẩm vào giỏ hàng!");
     } else {
