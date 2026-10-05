@@ -14,10 +14,10 @@ export default function ProductsPage() {
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
-  const [motoType, setMotoType] = useState("all");
   const [brand, setBrand] = useState("all");
   const [price, setPrice] = useState("all");
   const [sort, setSort] = useState("default");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [urlReady, setUrlReady] = useState(false);
 
@@ -55,7 +55,6 @@ export default function ProductsPage() {
 
       setSearch(params.get("q") ?? "");
       setCategory(params.get("category") ?? "all");
-      setMotoType(params.get("motoType") ?? "all");
       setBrand(params.get("brand") ?? "all");
       setPrice(params.get("price") ?? "all");
       setSort(params.get("sort") ?? "default");
@@ -91,10 +90,6 @@ export default function ProductsPage() {
       params.set("category", category);
     }
 
-    if (category === "moto" && motoType !== "all") {
-      params.set("motoType", motoType);
-    }
-
     if (brand !== "all") {
       params.set("brand", brand);
     }
@@ -116,7 +111,7 @@ export default function ProductsPage() {
     const nextUrl = query ? `/products?${query}` : "/products";
 
     window.history.replaceState(null, "", nextUrl);
-  }, [brand, category, currentPage, motoType, price, search, sort, urlReady]);
+  }, [brand, category, currentPage, price, search, sort, urlReady]);
 
   // =========================
   // FILTER HANDLERS
@@ -129,16 +124,6 @@ export default function ProductsPage() {
 
   function handleCategoryChange(value: string) {
     setCategory(value);
-
-    if (value !== "moto") {
-      setMotoType("all");
-    }
-
-    setCurrentPage(1);
-  }
-
-  function handleMotoTypeChange(value: string) {
-    setMotoType(value);
     setCurrentPage(1);
   }
 
@@ -162,19 +147,19 @@ export default function ProductsPage() {
   // =========================
 
   let filteredProducts = products.filter((product) => {
+    // Tìm kiếm
     const matchSearch = product.ten
       .toLowerCase()
       .includes(search.toLowerCase());
 
-    const matchCategory = category === "all" || product.category === category;
+    // Danh mục từ DB
+    const matchCategory =
+      category === "all" || product.categoryId === Number(category);
 
-    const matchMotoType =
-      category !== "moto" ||
-      motoType === "all" ||
-      product.motoType === motoType;
+    // Thương hiệu từ DB
+    const matchBrand = brand === "all" || product.brandId === Number(brand);
 
-    const matchBrand = brand === "all" || product.brand === brand;
-
+    // Giá
     const sellingPrice = product.giaKhuyenMai;
 
     const matchPrice =
@@ -188,9 +173,7 @@ export default function ProductsPage() {
         sellingPrice <= 300000000) ||
       (price === "over-300" && sellingPrice > 300000000);
 
-    return (
-      matchSearch && matchCategory && matchMotoType && matchBrand && matchPrice
-    );
+    return matchSearch && matchCategory && matchBrand && matchPrice;
   });
 
   // =========================
@@ -239,13 +222,12 @@ export default function ProductsPage() {
       <ProductFilter
         search={search}
         category={category}
-        motoType={motoType}
         brand={brand}
         price={price}
         sort={sort}
+        products={products}
         onSearch={handleSearch}
         onCategoryChange={handleCategoryChange}
-        onMotoTypeChange={handleMotoTypeChange}
         onBrandChange={handleBrandChange}
         onPriceChange={handlePriceChange}
         onSortChange={handleSortChange}

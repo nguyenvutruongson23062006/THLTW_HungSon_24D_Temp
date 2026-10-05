@@ -1,17 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import type { Product } from "@/lib/products";
 
 type ProductFilterProps = {
   search: string;
   category: string;
-  motoType: string;
   brand: string;
   price: string;
   sort: string;
+
+  products: Product[];
+
   onSearch: (keyword: string) => void;
   onCategoryChange: (category: string) => void;
-  onMotoTypeChange: (motoType: string) => void;
   onBrandChange: (brand: string) => void;
   onPriceChange: (price: string) => void;
   onSortChange: (sort: string) => void;
@@ -20,13 +22,12 @@ type ProductFilterProps = {
 export default function ProductFilter({
   search,
   category,
-  motoType,
   brand,
   price,
   sort,
+  products,
   onSearch,
   onCategoryChange,
-  onMotoTypeChange,
   onBrandChange,
   onPriceChange,
   onSortChange,
@@ -38,8 +39,34 @@ export default function ProductFilter({
     onSearch(keyword);
   }
 
+  // =========================
+  // DANH MỤC TỪ DATABASE
+  // =========================
+
+  const categories = Array.from(
+    new Map(
+      products.map((product) => [product.categoryId, product.categoryName]),
+    ).entries(),
+  );
+
+  // =========================
+  // THƯƠNG HIỆU TỪ DATABASE
+  // =========================
+
+  const brands = Array.from(
+    new Map(
+      products
+        .filter((product) => product.brandId && product.brand)
+        .map((product) => [product.brandId, product.brand]),
+    ).entries(),
+  );
+
   return (
     <div className="mb-8 space-y-4">
+      {/* =========================
+          SEARCH
+      ========================= */}
+
       <form onSubmit={handleSubmit} className="flex gap-3">
         <input
           type="text"
@@ -57,73 +84,74 @@ export default function ProductFilter({
         </button>
       </form>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {/* Danh mục chính */}
+      {/* =========================
+          FILTERS
+      ========================= */}
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* DANH MỤC */}
+
         <select
           value={category}
-          onChange={(event) => {
-            onCategoryChange(event.target.value);
-            if (event.target.value !== "moto") {
-              onMotoTypeChange("all");
-            }
-          }}
+          onChange={(event) => onCategoryChange(event.target.value)}
           className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-blue-500"
         >
           <option value="all">Tất cả danh mục</option>
-          <option value="moto">Mô tô</option>
-          <option value="accessories">Phụ kiện</option>
-          <option value="oil">Dầu nhớt</option>
-          <option value="gear">Đồ bảo hộ</option>
+
+          {categories.map(([id, name]) => (
+            <option key={id} value={String(id)}>
+              {name}
+            </option>
+          ))}
         </select>
 
-        {/* Phân loại mô tô */}
-        <select
-          value={motoType}
-          onChange={(event) => onMotoTypeChange(event.target.value)}
-          disabled={category !== "moto"}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400"
-        >
-          <option value="all">Tất cả mô tô</option>
-          <option value="sport">Sport</option>
-          <option value="naked">Naked</option>
-        </select>
+        {/* THƯƠNG HIỆU */}
 
-        {/* Thương hiệu */}
         <select
           value={brand}
           onChange={(event) => onBrandChange(event.target.value)}
           className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-blue-500"
         >
           <option value="all">Tất cả thương hiệu</option>
-          <option value="Yamaha">Yamaha</option>
-          <option value="Honda">Honda</option>
-          <option value="Kawasaki">Kawasaki</option>
-          <option value="Suzuki">Suzuki</option>
-          <option value="Triumph">Triumph</option>
+
+          {brands.map(([id, name]) => (
+            <option key={id} value={String(id)}>
+              {name}
+            </option>
+          ))}
         </select>
 
-        {/* Giá */}
+        {/* GIÁ */}
+
         <select
           value={price}
           onChange={(event) => onPriceChange(event.target.value)}
           className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-blue-500"
         >
           <option value="all">Tất cả mức giá</option>
+
           <option value="under-200">Dưới 200 triệu</option>
+
           <option value="200-250">200 - 250 triệu</option>
+
           <option value="250-300">250 - 300 triệu</option>
+
           <option value="over-300">Trên 300 triệu</option>
         </select>
 
-        {/* Sắp xếp */}
+        {/* SẮP XẾP */}
+
         <select
           value={sort}
           onChange={(event) => onSortChange(event.target.value)}
           className="rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-blue-500"
         >
           <option value="default">Sắp xếp</option>
+
           <option value="price-asc">Giá thấp đến cao</option>
+
           <option value="price-desc">Giá cao đến thấp</option>
+
           <option value="newest">Mới nhất</option>
         </select>
       </div>
