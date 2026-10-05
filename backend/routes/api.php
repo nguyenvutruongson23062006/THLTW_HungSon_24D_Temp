@@ -20,6 +20,9 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/me', [AuthController::class, 'me'])
     ->middleware('auth:sanctum');
 
+// Danh sách người dùng (chỉ dành cho quản trị viên)
+Route::get('/admin/members', [UserController::class, 'danhSachNguoiDung'])
+    ->middleware(['auth:sanctum', 'kiem_tra_vai_tro']);
 // Đăng xuất
 Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth:sanctum');
