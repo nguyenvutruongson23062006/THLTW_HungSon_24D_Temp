@@ -1,11 +1,21 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Http\Resources\NguoiDungResource;
+use App\Models\User;
 
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    public function danhSachNguoiDung()
+    {
+        $nguoiDungs = User::query()
+            ->orderBy('ma_nguoi_dung')
+            ->get();
+
+        return NguoiDungResource::collection($nguoiDungs);
+    }
     public function updateProfile(Request $request)
     {
         $user = $request->user();
