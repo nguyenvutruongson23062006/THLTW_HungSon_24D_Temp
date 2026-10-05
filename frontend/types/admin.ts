@@ -6,7 +6,6 @@ export interface DanhMuc {
   mo_ta: string | null;
   anh_dai_dien?: string | null;
   trang_thai: "hoat_dong" | "tam_ngung";
-  so_luong_san_pham?: number;
 }
 
 export interface DanhMucInput {
@@ -25,7 +24,6 @@ export interface ThuongHieu {
   logo: string | null;
   mo_ta: string | null;
   trang_thai: "hoat_dong" | "tam_ngung";
-  so_luong_san_pham?: number;
 }
 
 export interface ThuongHieuInput {

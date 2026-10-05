@@ -264,15 +264,12 @@ export default function QuanLyThuongHieu() {
                   <th className="px-5 py-3 font-medium">
                     Đường dẫn
                   </th>
-                  <th className="px-5 py-3 font-medium">
-                    Mô tả
-                  </th>
-                  <th className="px-5 py-3 font-medium">
-                    Sản phẩm
-                  </th>
-                  <th className="px-5 py-3 font-medium">
-                    Trạng thái
-                  </th>
+                <th className="px-5 py-3 font-medium">
+                  Mô tả
+                </th>
+                <th className="px-5 py-3 font-medium">
+                  Trạng thái
+                </th>
                   <th className="px-5 py-3 font-medium">
                     Thao tác
                   </th>
@@ -301,10 +298,6 @@ export default function QuanLyThuongHieu() {
 
                     <td className="max-w-xs px-5 py-4 text-slate-500">
                       {thuongHieu.mo_ta ?? "Chưa có mô tả"}
-                    </td>
-
-                    <td className="px-5 py-4">
-                      {thuongHieu.so_luong_san_pham ?? 0}
                     </td>
 
                     <td className="px-5 py-4">

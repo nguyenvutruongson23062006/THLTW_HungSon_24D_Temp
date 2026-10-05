@@ -264,15 +264,12 @@ export default function QuanLyDanhMuc() {
                   <th className="px-5 py-3 font-medium">
                     Đường dẫn
                   </th>
-                  <th className="px-5 py-3 font-medium">
-                    Danh mục cha
-                  </th>
-                  <th className="px-5 py-3 font-medium">
-                    Số sản phẩm
-                  </th>
-                  <th className="px-5 py-3 font-medium">
-                    Trạng thái
-                  </th>
+                <th className="px-5 py-3 font-medium">
+                  Danh mục cha
+                </th>
+                <th className="px-5 py-3 font-medium">
+                  Trạng thái
+                </th>
                   <th className="px-5 py-3 font-medium">
                     Thao tác
                   </th>
@@ -307,10 +304,6 @@ export default function QuanLyDanhMuc() {
                               danhMuc.ma_danh_muc_cha,
                           )?.ten_danh_muc ?? "Không xác định"
                         : "Danh mục gốc"}
-                    </td>
-
-                    <td className="px-5 py-4">
-                      {danhMuc.so_luong_san_pham ?? 0}
                     </td>
 
                     <td className="px-5 py-4">
