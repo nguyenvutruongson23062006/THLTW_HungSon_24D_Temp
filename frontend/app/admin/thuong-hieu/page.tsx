@@ -1,72 +1,30 @@
 "use client";
 
-import { SyntheticEvent, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
+import type { ThuongHieu, ThuongHieuInput } from "@/types/admin";
+import {
+  capNhatThuongHieu,
+  layDanhSachThuongHieu,
+  themThuongHieu,
+  xoaThuongHieu,
+} from "@/lib/api/thuongHieuApi";
 
-type NhanHangMau = {
-  ma_thuong_hieu: number;
-  ten_thuong_hieu: string;
-  duong_dan: string;
-  logo: string;
-  mo_ta: string;
-  trang_thai: "hoat_dong" | "tam_ngung";
-  so_luong_san_pham: number;
-};
-
-type BieuMauNhanHang = {
+type BieuMauThuongHieu = {
   ten_thuong_hieu: string;
   logo: string;
   mo_ta: string;
   trang_thai: "hoat_dong" | "tam_ngung";
 };
 
-const danhSachNhanHangMau: NhanHangMau[] = [
-  {
-    ma_thuong_hieu: 1,
-    ten_thuong_hieu: "Honda",
-    duong_dan: "honda",
-    logo: "/images/brands/honda.png",
-    mo_ta: "Nhãn hàng xe máy phổ biến tại Việt Nam.",
-    trang_thai: "hoat_dong",
-    so_luong_san_pham: 18,
-  },
-  {
-    ma_thuong_hieu: 2,
-    ten_thuong_hieu: "Yamaha",
-    duong_dan: "yamaha",
-    logo: "/images/brands/yamaha.png",
-    mo_ta: "Nhãn hàng xe máy phong cách thể thao.",
-    trang_thai: "hoat_dong",
-    so_luong_san_pham: 15,
-  },
-  {
-    ma_thuong_hieu: 3,
-    ten_thuong_hieu: "Suzuki",
-    duong_dan: "suzuki",
-    logo: "/images/brands/suzuki.png",
-    mo_ta: "Nhãn hàng xe máy bền bỉ và tiết kiệm.",
-    trang_thai: "hoat_dong",
-    so_luong_san_pham: 7,
-  },
-  {
-    ma_thuong_hieu: 4,
-    ten_thuong_hieu: "Piaggio",
-    duong_dan: "piaggio",
-    logo: "/images/brands/piaggio.png",
-    mo_ta: "Nhãn hàng xe tay ga phong cách châu Âu.",
-    trang_thai: "tam_ngung",
-    so_luong_san_pham: 4,
-  },
-];
-
-const bieuMauRong: BieuMauNhanHang = {
+const bieuMauRong: BieuMauThuongHieu = {
   ten_thuong_hieu: "",
   logo: "",
   mo_ta: "",
   trang_thai: "hoat_dong",
 };
 
-function taoDuongDan(tenNhanHang: string) {
-  return tenNhanHang
+function taoDuongDan(tenThuongHieu: string) {
+  return tenThuongHieu
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
@@ -75,30 +33,54 @@ function taoDuongDan(tenNhanHang: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export default function QuanLyNhanHang() {
-  const [danhSachNhanHang, setDanhSachNhanHang] = useState(
-    danhSachNhanHangMau,
-  );
+export default function QuanLyThuongHieu() {
+  const [danhSachThuongHieu, setDanhSachThuongHieu] = useState<
+    ThuongHieu[]
+  >([]);
   const [tuKhoa, setTuKhoa] = useState("");
   const [trangThaiLoc, setTrangThaiLoc] = useState("tat_ca");
   const [dangMoForm, setDangMoForm] = useState(false);
-  const [nhanHangDangSua, setNhanHangDangSua] = useState<NhanHangMau | null>(
-    null,
-  );
-  const [bieuMau, setBieuMau] = useState<BieuMauNhanHang>(bieuMauRong);
+  const [thuongHieuDangSua, setThuongHieuDangSua] =
+    useState<ThuongHieu | null>(null);
+  const [bieuMau, setBieuMau] =
+    useState<BieuMauThuongHieu>(bieuMauRong);
+  const [dangTai, setDangTai] = useState(true);
+  const [dangLuu, setDangLuu] = useState(false);
+  const [loi, setLoi] = useState("");
 
-  const nhanHangHienThi = danhSachNhanHang.filter((nhanHang) => {
-    const khopTuKhoa = `${nhanHang.ten_thuong_hieu} ${nhanHang.duong_dan}`
+  useEffect(() => {
+    async function taiDanhSach() {
+      try {
+        const duLieu = await layDanhSachThuongHieu();
+        setDanhSachThuongHieu(duLieu);
+      } catch (loiApi) {
+        setLoi(
+          loiApi instanceof Error
+            ? loiApi.message
+            : "Không thể tải thương hiệu",
+        );
+      } finally {
+        setDangTai(false);
+      }
+    }
+
+    taiDanhSach();
+  }, []);
+
+  const thuongHieuHienThi = danhSachThuongHieu.filter((thuongHieu) => {
+    const khopTuKhoa = `${thuongHieu.ten_thuong_hieu} ${thuongHieu.duong_dan}`
       .toLowerCase()
       .includes(tuKhoa.toLowerCase());
+
     const khopTrangThai =
-      trangThaiLoc === "tat_ca" || nhanHang.trang_thai === trangThaiLoc;
+      trangThaiLoc === "tat_ca" ||
+      thuongHieu.trang_thai === trangThaiLoc;
 
     return khopTuKhoa && khopTrangThai;
   });
 
   function capNhatTruong(
-    truong: keyof BieuMauNhanHang,
+    truong: keyof BieuMauThuongHieu,
     giaTri: string,
   ) {
     setBieuMau((bieuMauCu) => ({
@@ -108,70 +90,101 @@ export default function QuanLyNhanHang() {
   }
 
   function moFormThem() {
-    setNhanHangDangSua(null);
-    setBieuMau(bieuMauRong);
+    setThuongHieuDangSua(null);
+    setBieuMau({ ...bieuMauRong });
+    setLoi("");
     setDangMoForm(true);
   }
 
-  function moFormSua(nhanHang: NhanHangMau) {
-    setNhanHangDangSua(nhanHang);
+  function moFormSua(thuongHieu: ThuongHieu) {
+    setThuongHieuDangSua(thuongHieu);
     setBieuMau({
-      ten_thuong_hieu: nhanHang.ten_thuong_hieu,
-      logo: nhanHang.logo,
-      mo_ta: nhanHang.mo_ta,
-      trang_thai: nhanHang.trang_thai,
+      ten_thuong_hieu: thuongHieu.ten_thuong_hieu,
+      logo: thuongHieu.logo ?? "",
+      mo_ta: thuongHieu.mo_ta ?? "",
+      trang_thai: thuongHieu.trang_thai,
     });
+    setLoi("");
     setDangMoForm(true);
   }
 
-  function xuLyLuu(event: SyntheticEvent<HTMLFormElement>) {
+  async function xuLyLuu(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
+    setDangLuu(true);
+    setLoi("");
 
-    const nhanHangMoi: NhanHangMau = {
-      ma_thuong_hieu:
-        nhanHangDangSua?.ma_thuong_hieu ??
-        Math.max(
-          0,
-          ...danhSachNhanHang.map((nhanHang) => nhanHang.ma_thuong_hieu),
-        ) + 1,
+    const duLieu: ThuongHieuInput = {
       ten_thuong_hieu: bieuMau.ten_thuong_hieu,
       duong_dan: taoDuongDan(bieuMau.ten_thuong_hieu),
-      logo: bieuMau.logo,
-      mo_ta: bieuMau.mo_ta,
+      logo: bieuMau.logo || undefined,
+      mo_ta: bieuMau.mo_ta || undefined,
       trang_thai: bieuMau.trang_thai,
-      so_luong_san_pham: nhanHangDangSua?.so_luong_san_pham ?? 0,
     };
 
-    if (nhanHangDangSua) {
-      setDanhSachNhanHang((danhSachCu) =>
-        danhSachCu.map((nhanHang) =>
-          nhanHang.ma_thuong_hieu === nhanHangMoi.ma_thuong_hieu
-            ? nhanHangMoi
-            : nhanHang,
-        ),
-      );
-    } else {
-      setDanhSachNhanHang((danhSachCu) => [nhanHangMoi, ...danhSachCu]);
-    }
+    try {
+      if (thuongHieuDangSua) {
+        const thuongHieuDaSua = await capNhatThuongHieu(
+          thuongHieuDangSua.ma_thuong_hieu,
+          duLieu,
+        );
 
-    setDangMoForm(false);
+        setDanhSachThuongHieu((danhSachCu) =>
+          danhSachCu.map((thuongHieu) =>
+            thuongHieu.ma_thuong_hieu ===
+            thuongHieuDangSua.ma_thuong_hieu
+              ? thuongHieuDaSua
+              : thuongHieu,
+          ),
+        );
+      } else {
+        const thuongHieuMoi = await themThuongHieu(duLieu);
+
+        setDanhSachThuongHieu((danhSachCu) => [
+          thuongHieuMoi,
+          ...danhSachCu,
+        ]);
+      }
+
+      setDangMoForm(false);
+      setBieuMau({ ...bieuMauRong });
+      setThuongHieuDangSua(null);
+    } catch (loiApi) {
+      setLoi(
+        loiApi instanceof Error
+          ? loiApi.message
+          : "Không thể lưu thương hiệu",
+      );
+    } finally {
+      setDangLuu(false);
+    }
   }
 
-  function xuLyXoa(nhanHang: NhanHangMau) {
-    if (
-      !window.confirm(
-        `Bạn có chắc muốn xóa nhãn hàng ${nhanHang.ten_thuong_hieu}?`,
-      )
-    ) {
+  async function xuLyXoa(thuongHieu: ThuongHieu) {
+    const xacNhan = window.confirm(
+      `Bạn có chắc muốn xóa thương hiệu ${thuongHieu.ten_thuong_hieu}?`,
+    );
+
+    if (!xacNhan) {
       return;
     }
 
-    setDanhSachNhanHang((danhSachCu) =>
-      danhSachCu.filter(
-        (nhanHangCu) =>
-          nhanHangCu.ma_thuong_hieu !== nhanHang.ma_thuong_hieu,
-      ),
-    );
+    try {
+      await xoaThuongHieu(thuongHieu.ma_thuong_hieu);
+
+      setDanhSachThuongHieu((danhSachCu) =>
+        danhSachCu.filter(
+          (thuongHieuCu) =>
+            thuongHieuCu.ma_thuong_hieu !==
+            thuongHieu.ma_thuong_hieu,
+        ),
+      );
+    } catch (loiApi) {
+      setLoi(
+        loiApi instanceof Error
+          ? loiApi.message
+          : "Không thể xóa thương hiệu",
+      );
+    }
   }
 
   return (
@@ -179,9 +192,11 @@ export default function QuanLyNhanHang() {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="text-sm font-medium text-sky-600">Quản trị</p>
+
           <h1 className="mt-1 text-3xl font-bold text-slate-900">
-            Quản lý nhãn hàng
+            Quản lý thương hiệu
           </h1>
+
           <p className="mt-1 text-sm text-slate-500">
             Quản lý các hãng xe đang kinh doanh.
           </p>
@@ -192,18 +207,25 @@ export default function QuanLyNhanHang() {
           onClick={moFormThem}
           className="rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-700"
         >
-          + Thêm nhãn hàng
+          + Thêm thương hiệu
         </button>
       </div>
+
+      {loi && (
+        <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+          {loi}
+        </div>
+      )}
 
       <section className="rounded-xl border border-slate-200/80 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-slate-100 p-5 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="font-semibold text-slate-900">
-              Danh sách nhãn hàng
+              Danh sách thương hiệu
             </h2>
+
             <p className="mt-1 text-xs text-slate-500">
-              Có {nhanHangHienThi.length} nhãn hàng phù hợp.
+              Có {thuongHieuHienThi.length} thương hiệu phù hợp.
             </p>
           </div>
 
@@ -211,9 +233,10 @@ export default function QuanLyNhanHang() {
             <input
               value={tuKhoa}
               onChange={(event) => setTuKhoa(event.target.value)}
-              placeholder="Tìm nhãn hàng..."
+              placeholder="Tìm thương hiệu..."
               className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500"
             />
+
             <select
               value={trangThaiLoc}
               onChange={(event) => setTrangThaiLoc(event.target.value)}
@@ -226,86 +249,109 @@ export default function QuanLyNhanHang() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-190 text-left text-sm">
-            <thead className="bg-slate-50 text-xs text-slate-500">
-              <tr>
-                <th className="px-5 py-3 font-medium">Nhãn hàng</th>
-                <th className="px-5 py-3 font-medium">Đường dẫn</th>
-                <th className="px-5 py-3 font-medium">Mô tả</th>
-                <th className="px-5 py-3 font-medium">Sản phẩm</th>
-                <th className="px-5 py-3 font-medium">Trạng thái</th>
-                <th className="px-5 py-3 font-medium">Thao tác</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-slate-100">
-              {nhanHangHienThi.map((nhanHang) => (
-                <tr key={nhanHang.ma_thuong_hieu} className="text-slate-700">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-500">
-                        {nhanHang.ten_thuong_hieu.slice(0, 2).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-900">
-                          {nhanHang.ten_thuong_hieu}
-                        </p>
-                        <p className="mt-1 text-xs text-slate-400">
-                          Mã: {nhanHang.ma_thuong_hieu}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4 text-slate-500">
-                    /{nhanHang.duong_dan}
-                  </td>
-                  <td className="max-w-xs px-5 py-4 text-slate-500">
-                    {nhanHang.mo_ta}
-                  </td>
-                  <td className="px-5 py-4">{nhanHang.so_luong_san_pham}</td>
-                  <td className="px-5 py-4">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        nhanHang.trang_thai === "hoat_dong"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-rose-100 text-rose-700"
-                      }`}
-                    >
-                      {nhanHang.trang_thai === "hoat_dong"
-                        ? "Hoạt động"
-                        : "Tạm ngưng"}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => moFormSua(nhanHang)}
-                        className="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => xuLyXoa(nhanHang)}
-                        className="rounded-md border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
-                      >
-                        Xóa
-                      </button>
-                    </div>
-                  </td>
+        {dangTai ? (
+          <p className="p-8 text-center text-sm text-slate-500">
+            Đang tải thương hiệu...
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-190 text-left text-sm">
+              <thead className="bg-slate-50 text-xs text-slate-500">
+                <tr>
+                  <th className="px-5 py-3 font-medium">
+                    Thương hiệu
+                  </th>
+                  <th className="px-5 py-3 font-medium">
+                    Đường dẫn
+                  </th>
+                  <th className="px-5 py-3 font-medium">
+                    Mô tả
+                  </th>
+                  <th className="px-5 py-3 font-medium">
+                    Sản phẩm
+                  </th>
+                  <th className="px-5 py-3 font-medium">
+                    Trạng thái
+                  </th>
+                  <th className="px-5 py-3 font-medium">
+                    Thao tác
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
 
-          {nhanHangHienThi.length === 0 && (
-            <p className="p-8 text-center text-sm text-slate-500">
-              Không tìm thấy nhãn hàng phù hợp.
-            </p>
-          )}
-        </div>
+              <tbody className="divide-y divide-slate-100">
+                {thuongHieuHienThi.map((thuongHieu) => (
+                  <tr
+                    key={thuongHieu.ma_thuong_hieu}
+                    className="text-slate-700"
+                  >
+                    <td className="px-5 py-4">
+                      <p className="font-medium text-slate-900">
+                        {thuongHieu.ten_thuong_hieu}
+                      </p>
+
+                      <p className="mt-1 text-xs text-slate-400">
+                        Mã: {thuongHieu.ma_thuong_hieu}
+                      </p>
+                    </td>
+
+                    <td className="px-5 py-4 text-slate-500">
+                      /{thuongHieu.duong_dan}
+                    </td>
+
+                    <td className="max-w-xs px-5 py-4 text-slate-500">
+                      {thuongHieu.mo_ta ?? "Chưa có mô tả"}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      {thuongHieu.so_luong_san_pham ?? 0}
+                    </td>
+
+                    <td className="px-5 py-4">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                          thuongHieu.trang_thai === "hoat_dong"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-rose-100 text-rose-700"
+                        }`}
+                      >
+                        {thuongHieu.trang_thai === "hoat_dong"
+                          ? "Hoạt động"
+                          : "Tạm ngưng"}
+                      </span>
+                    </td>
+
+                    <td className="px-5 py-4">
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => moFormSua(thuongHieu)}
+                          className="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                        >
+                          Sửa
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => xuLyXoa(thuongHieu)}
+                          className="rounded-md border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {thuongHieuHienThi.length === 0 && (
+              <p className="p-8 text-center text-sm text-slate-500">
+                Không tìm thấy thương hiệu phù hợp.
+              </p>
+            )}
+          </div>
+        )}
       </section>
 
       {dangMoForm && (
@@ -313,8 +359,11 @@ export default function QuanLyNhanHang() {
           <div className="mx-auto max-w-xl rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
               <h2 className="font-semibold text-slate-900">
-                {nhanHangDangSua ? "Sửa nhãn hàng" : "Thêm nhãn hàng"}
+                {thuongHieuDangSua
+                  ? "Sửa thương hiệu"
+                  : "Thêm thương hiệu"}
               </h2>
+
               <button
                 type="button"
                 onClick={() => setDangMoForm(false)}
@@ -325,16 +374,23 @@ export default function QuanLyNhanHang() {
               </button>
             </div>
 
-            <form onSubmit={xuLyLuu} className="space-y-4 p-6">
+            <form
+              onSubmit={xuLyLuu}
+              className="space-y-4 p-6"
+            >
               <label className="block">
                 <span className="mb-1 block text-sm font-medium text-slate-700">
-                  Tên nhãn hàng
+                  Tên thương hiệu
                 </span>
+
                 <input
                   required
                   value={bieuMau.ten_thuong_hieu}
                   onChange={(event) =>
-                    capNhatTruong("ten_thuong_hieu", event.target.value)
+                    capNhatTruong(
+                      "ten_thuong_hieu",
+                      event.target.value,
+                    )
                   }
                   className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500"
                 />
@@ -344,6 +400,7 @@ export default function QuanLyNhanHang() {
                 <span className="mb-1 block text-sm font-medium text-slate-700">
                   Đường dẫn logo
                 </span>
+
                 <input
                   value={bieuMau.logo}
                   onChange={(event) =>
@@ -358,12 +415,13 @@ export default function QuanLyNhanHang() {
                 <span className="mb-1 block text-sm font-medium text-slate-700">
                   Trạng thái
                 </span>
+
                 <select
                   value={bieuMau.trang_thai}
                   onChange={(event) =>
                     capNhatTruong(
                       "trang_thai",
-                      event.target.value as BieuMauNhanHang["trang_thai"],
+                      event.target.value,
                     )
                   }
                   className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500"
@@ -377,6 +435,7 @@ export default function QuanLyNhanHang() {
                 <span className="mb-1 block text-sm font-medium text-slate-700">
                   Mô tả
                 </span>
+
                 <textarea
                   rows={4}
                   value={bieuMau.mo_ta}
@@ -395,11 +454,13 @@ export default function QuanLyNhanHang() {
                 >
                   Hủy
                 </button>
+
                 <button
                   type="submit"
-                  className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700"
+                  disabled={dangLuu}
+                  className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:opacity-60"
                 >
-                  Lưu nhãn hàng
+                  {dangLuu ? "Đang lưu..." : "Lưu thương hiệu"}
                 </button>
               </div>
             </form>
