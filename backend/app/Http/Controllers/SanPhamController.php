@@ -24,6 +24,24 @@ class SanPhamController extends Controller
         ]);
     }
 
+    // Lấy danh sách sản phẩm đã xóa mềm
+    public function thungRac()
+    {
+        $sanPhams = SanPham::onlyTrashed()
+            ->with([
+                'danhMuc',
+                'thuongHieu',
+                'hinhAnhSanPhams',
+            ])
+            ->orderByDesc('ngay_xoa')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $sanPhams,
+        ]);
+    }
+
     // Lấy thông tin chi tiết sản phẩm
     public function show(SanPham $sanPham)
     {
@@ -117,6 +135,27 @@ class SanPhamController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Xóa sản phẩm thành công'
+        ]);
+    }
+
+    // Khôi phục sản phẩm đã xóa mềm
+    public function khoiPhuc(int $maSanPham)
+    {
+        $sanPham = SanPham::onlyTrashed()
+            ->findOrFail($maSanPham);
+
+        $sanPham->restore();
+
+        $sanPham->load([
+            'danhMuc',
+            'thuongHieu',
+            'hinhAnhSanPhams',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Khôi phục sản phẩm thành công',
+            'data' => $sanPham,
         ]);
     }
 

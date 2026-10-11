@@ -54,8 +54,10 @@ Route::delete('/thuonghieu/{thuongHieu}', [ThuongHieuController::class, 'destroy
 // ==================== SẢN PHẨM ====================
 
 Route::get('/sanpham', [SanPhamController::class, 'index']);
+Route::get('/sanpham/thung-rac', [SanPhamController::class, 'thungRac',]);
 Route::get('/sanpham/{sanPham}', [SanPhamController::class, 'show']);
 Route::post('/sanpham', [SanPhamController::class, 'store']);
 Route::put('/sanpham/{sanPham}', [SanPhamController::class, 'update']);
 Route::delete('/sanpham/{sanPham}', [SanPhamController::class, 'destroy']);
-Route::delete('/sanpham/{maSanPham}/xoa-vinh-vien', [SanPhamController::class,'xoaVinhVien',]);
+Route::patch('/sanpham/{maSanPham}/khoi-phuc', [SanPhamController::class, 'khoiPhuc',]);
+Route::delete('/sanpham/{maSanPham}/xoa-vinh-vien', [SanPhamController::class, 'xoaVinhVien',]);
