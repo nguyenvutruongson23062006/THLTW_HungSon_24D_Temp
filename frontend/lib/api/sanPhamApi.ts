@@ -5,6 +5,10 @@ export function layDanhSachSanPham() {
   return apiRequest<SanPham[]>("/sanpham");
 }
 
+export function laySanPham(maSanPham: number) {
+  return apiRequest<SanPham>(`/sanpham/${maSanPham}`);
+}
+
 export function themSanPham(duLieu: SanPhamInput) {
   return apiRequest<SanPham>("/sanpham", {
     method: "POST",

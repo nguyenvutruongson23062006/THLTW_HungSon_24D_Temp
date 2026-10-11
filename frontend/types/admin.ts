@@ -34,6 +34,14 @@ export interface ThuongHieuInput {
   trang_thai: "hoat_dong" | "tam_ngung";
 }
 
+export interface HinhAnhSanPham {
+  ma_hinh_anh: number;
+  ma_san_pham: number;
+  duong_dan: string;
+  la_anh_dai_dien: boolean;
+  thu_tu_hien_thi: number;
+}
+
 export interface SanPham {
   ma_san_pham: number;
   ten_san_pham: string;
@@ -52,6 +60,7 @@ export interface SanPham {
   luot_xem?: number;
   danh_muc?: DanhMuc;
   thuong_hieu?: ThuongHieu;
+  hinh_anh_san_phams?: HinhAnhSanPham[];
 }
 
 export interface SanPhamInput {
@@ -60,6 +69,13 @@ export interface SanPhamInput {
   ma_thuong_hieu: number;
   duong_dan: string;
   gia_ban: number;
+  gia_khuyen_mai?: number | null;
   so_luong_ton: number;
+  dung_tich_dong_co?: number | null;
+  nam_san_xuat?: number | null;
+  mau_sac?: string | null;
+  anh_dai_dien?: string | null;
+  mo_ta?: string | null;
   trang_thai: "hoat_dong" | "tam_ngung";
+  luot_xem?: number;
 }
