@@ -81,6 +81,7 @@ export default function QuanLySanPham() {
 
       try {
         const duLieu = await layDanhSachSanPham();
+
         setDanhSachSanPham(duLieu);
       } catch (loiApi) {
         setLoi(
@@ -163,12 +164,21 @@ export default function QuanLySanPham() {
           </p>
         </div>
 
-        <Link
-          href="/admin/san-pham/them"
-          className="rounded-lg bg-sky-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-sky-700"
-        >
-          + Thêm sản phẩm
-        </Link>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Link
+            href="/admin/san-pham/thung-rac"
+            className="rounded-lg bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-rose-700"
+          >
+            Thùng rác
+          </Link>
+
+          <Link
+            href="/admin/san-pham/them"
+            className="rounded-lg bg-sky-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-sky-700"
+          >
+            + Thêm sản phẩm
+          </Link>
+        </div>
       </div>
 
       {loi && (

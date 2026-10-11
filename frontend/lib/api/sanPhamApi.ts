@@ -31,3 +31,28 @@ export function xoaSanPham(maSanPham: number) {
     method: "DELETE",
   });
 }
+
+export function layDanhSachSanPhamDaXoa() {
+  return apiRequest<SanPham[]>("/sanpham/thung-rac");
+}
+
+export function khoiPhucSanPham(maSanPham: number) {
+  return apiRequest<SanPham>(
+    `/sanpham/${maSanPham}/khoi-phuc`,
+    {
+      method: "PATCH",
+    },
+  );
+}
+
+export function xoaVinhVienSanPham(maSanPham: number) {
+  return apiRequest<{
+    success: boolean;
+    message: string;
+  }>(
+    `/sanpham/${maSanPham}/xoa-vinh-vien`,
+    {
+      method: "DELETE",
+    },
+  );
+}
