@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SanPham;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SanPhamController extends Controller
 {
@@ -71,13 +72,26 @@ class SanPhamController extends Controller
             'dung_tich_dong_co' => 'nullable|integer|min:0',
             'nam_san_xuat' => 'nullable|integer|min:1900|max:2100',
             'mau_sac' => 'nullable|string|max:100',
-            'anh_dai_dien' => 'nullable|string|max:255',
+            'hinh_anh' => [
+                'nullable',
+                'array',
+                'max:10',
+            ],
+            'hinh_anh.*' => [
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048',
+            ],
             'mo_ta' => 'nullable|string',
             'trang_thai' => 'nullable|string|max:50',
             'luot_xem' => 'nullable|integer|min:0',
         ]);
 
+        unset($validated['hinh_anh']);
+
         $sanPham = SanPham::create($validated);
+
+        $this->luuHinhAnhSanPham($request, $sanPham);
 
         $sanPham->load([
             'danhMuc',
@@ -106,13 +120,26 @@ class SanPhamController extends Controller
             'dung_tich_dong_co' => 'nullable|integer|min:0',
             'nam_san_xuat' => 'nullable|integer|min:1900|max:2100',
             'mau_sac' => 'nullable|string|max:100',
-            'anh_dai_dien' => 'nullable|string|max:255',
+            'hinh_anh' => [
+                'nullable',
+                'array',
+                'max:10',
+            ],
+            'hinh_anh.*' => [
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048',
+            ],
             'mo_ta' => 'nullable|string',
             'trang_thai' => 'nullable|string|max:50',
             'luot_xem' => 'nullable|integer|min:0',
         ]);
 
+        unset($validated['hinh_anh']);
+
         $sanPham->update($validated);
+
+        $this->luuHinhAnhSanPham($request, $sanPham);
 
         $sanPham->load([
             'danhMuc',
@@ -125,6 +152,49 @@ class SanPhamController extends Controller
             'message' => 'Cập nhật sản phẩm thành công',
             'data' => $sanPham
         ]);
+    }
+
+    // Lưu nhiều ảnh cho một sản phẩm
+    private function luuHinhAnhSanPham(
+        Request $request,
+        SanPham $sanPham,
+    ): void {
+        $files = $request->file('hinh_anh', []);
+
+        if (!is_array($files) || count($files) === 0) {
+            return;
+        }
+
+        $sanPham->hinhAnhSanPhams()
+            ->where('la_anh_dai_dien', true)
+            ->update(['la_anh_dai_dien' => false]);
+
+        $anhDaiDien = null;
+
+        foreach ($files as $thuTu => $file) {
+            $duongDanAnh = $file
+                ->store('products', 'public');
+
+            $duongDanCongKhai = url(
+                Storage::url($duongDanAnh),
+            );
+
+            $sanPham->hinhAnhSanPhams()->create([
+                'duong_dan' => $duongDanCongKhai,
+                'la_anh_dai_dien' => $thuTu === 0,
+                'thu_tu_hien_thi' => $thuTu,
+            ]);
+
+            if ($thuTu === 0) {
+                $anhDaiDien = $duongDanCongKhai;
+            }
+        }
+
+        if ($anhDaiDien !== null) {
+            $sanPham->update([
+                'anh_dai_dien' => $anhDaiDien,
+            ]);
+        }
     }
 
     // Xóa mềm sản phẩm

@@ -5,11 +5,17 @@ export async function apiRequest<T>(
   duongDan: string,
   tuyChon?: RequestInit,
 ): Promise<T> {
+  const laFormData = tuyChon?.body instanceof FormData;
+
   const phanHoi = await fetch(`${API_URL}${duongDan}`, {
     ...tuyChon,
     headers: {
       Accept: "application/json",
-      "Content-Type": "application/json",
+      ...(laFormData
+        ? {}
+        : {
+            "Content-Type": "application/json",
+          }),
       ...tuyChon?.headers,
     },
   });

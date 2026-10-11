@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import type {
   DanhMuc,
   SanPham,
-  SanPhamInput,
   ThuongHieu,
 } from "@/types/admin";
 
@@ -32,6 +31,7 @@ type BieuMauSanPhamState = {
   nam_san_xuat: string;
   mau_sac: string;
   anh_dai_dien: string;
+  anh_files: File[];
   mo_ta: string;
   trang_thai: "hoat_dong" | "tam_ngung";
 };
@@ -52,6 +52,7 @@ const bieuMauRong: BieuMauSanPhamState = {
   nam_san_xuat: "",
   mau_sac: "",
   anh_dai_dien: "",
+  anh_files: [],
   mo_ta: "",
   trang_thai: "hoat_dong",
 };
@@ -129,6 +130,7 @@ export default function BieuMauSanPham({
             ),
             mau_sac: sanPham.mau_sac ?? "",
             anh_dai_dien: sanPham.anh_dai_dien ?? "",
+            anh_files: [],
             mo_ta: sanPham.mo_ta ?? "",
             trang_thai: sanPham.trang_thai,
           });
@@ -157,28 +159,78 @@ export default function BieuMauSanPham({
     }));
   }
 
-  function taoDuLieuGuiDi(): SanPhamInput {
-    return {
-      ten_san_pham: bieuMau.ten_san_pham.trim(),
-      ma_danh_muc: Number(bieuMau.ma_danh_muc),
-      ma_thuong_hieu: Number(bieuMau.ma_thuong_hieu),
-      duong_dan: taoDuongDan(bieuMau.ten_san_pham),
-      gia_ban: Number(bieuMau.gia_ban),
-      gia_khuyen_mai: bieuMau.gia_khuyen_mai.trim()
-        ? Number(bieuMau.gia_khuyen_mai)
-        : null,
-      so_luong_ton: Number(bieuMau.so_luong_ton),
-      dung_tich_dong_co: bieuMau.dung_tich_dong_co.trim()
-        ? Number(bieuMau.dung_tich_dong_co)
-        : null,
-      nam_san_xuat: bieuMau.nam_san_xuat.trim()
-        ? Number(bieuMau.nam_san_xuat)
-        : null,
-      mau_sac: bieuMau.mau_sac.trim() || null,
-      anh_dai_dien: bieuMau.anh_dai_dien.trim() || null,
-      mo_ta: bieuMau.mo_ta.trim() || null,
-      trang_thai: bieuMau.trang_thai,
-    };
+  function capNhatAnhFiles(files: File[]) {
+    setBieuMau((bieuMauCu) => ({
+      ...bieuMauCu,
+      anh_files: files,
+    }));
+  }
+
+  function taoDuLieuGuiDi(): FormData {
+    const duLieu = new FormData();
+
+    duLieu.append(
+      "ten_san_pham",
+      bieuMau.ten_san_pham.trim(),
+    );
+    duLieu.append("ma_danh_muc", bieuMau.ma_danh_muc);
+    duLieu.append(
+      "ma_thuong_hieu",
+      bieuMau.ma_thuong_hieu,
+    );
+    duLieu.append(
+      "duong_dan",
+      taoDuongDan(bieuMau.ten_san_pham),
+    );
+    duLieu.append("gia_ban", bieuMau.gia_ban);
+    duLieu.append(
+      "so_luong_ton",
+      bieuMau.so_luong_ton,
+    );
+    duLieu.append("trang_thai", bieuMau.trang_thai);
+
+    if (bieuMau.gia_khuyen_mai.trim()) {
+      duLieu.append(
+        "gia_khuyen_mai",
+        bieuMau.gia_khuyen_mai,
+      );
+    }
+
+    if (bieuMau.dung_tich_dong_co.trim()) {
+      duLieu.append(
+        "dung_tich_dong_co",
+        bieuMau.dung_tich_dong_co,
+      );
+    }
+
+    if (bieuMau.nam_san_xuat.trim()) {
+      duLieu.append(
+        "nam_san_xuat",
+        bieuMau.nam_san_xuat,
+      );
+    }
+
+    if (bieuMau.mau_sac.trim()) {
+      duLieu.append("mau_sac", bieuMau.mau_sac.trim());
+    }
+
+    if (bieuMau.mo_ta.trim()) {
+      duLieu.append("mo_ta", bieuMau.mo_ta.trim());
+    }
+
+    bieuMau.anh_files.forEach((file) => {
+      duLieu.append("hinh_anh[]", file);
+    });
+
+    if (bieuMau.anh_files.length > 0) {
+      duLieu.append("anh_dai_dien", "");
+    }
+
+    if (laCheDoSua) {
+      duLieu.append("_method", "PUT");
+    }
+
+    return duLieu;
   }
 
   async function xuLyLuu(event: FormEvent<HTMLFormElement>) {
@@ -465,23 +517,44 @@ export default function BieuMauSanPham({
 
           <label className="md:col-span-2">
             <span className="mb-1 block text-sm font-medium text-slate-700">
-              Đường dẫn ảnh đại diện
+              Ảnh đại diện
             </span>
 
             <input
-              value={bieuMau.anh_dai_dien}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
               onChange={(event) =>
-                capNhatTruong(
-                  "anh_dai_dien",
-                  event.target.value,
+                capNhatAnhFiles(
+                  Array.from(event.target.files ?? []),
                 )
               }
-              placeholder="/images/products/honda-sh-mode-125i-2025-1.jpg"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-sky-500"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none file:mr-4 file:rounded-md file:border-0 file:bg-sky-50 file:px-3 file:py-2 file:text-sm file:font-medium file:text-sky-700 hover:file:bg-sky-100"
             />
 
+            {bieuMau.anh_files.length > 0 && (
+              <div className="mt-2 space-y-1 text-xs text-emerald-600">
+                <p>
+                  Đã chọn {bieuMau.anh_files.length} ảnh:
+                </p>
+
+                {bieuMau.anh_files.map((file) => (
+                  <p key={`${file.name}-${file.lastModified}`}>
+                    - {file.name}
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {bieuMau.anh_files.length === 0 &&
+              bieuMau.anh_dai_dien && (
+              <p className="mt-2 text-xs text-slate-500">
+                Ảnh hiện tại được giữ lại nếu bạn không chọn ảnh mới.
+              </p>
+              )}
+
             <span className="mt-1 block text-xs text-slate-400">
-              Hiện tại backend đang lưu đường dẫn ảnh, chưa upload file trực tiếp.
+              Chỉ nhận ảnh JPG, PNG hoặc WEBP, tối đa 2MB.
             </span>
           </label>
 

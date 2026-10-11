@@ -1,6 +1,8 @@
 import { apiRequest } from "./apiClient";
 import type { SanPham, SanPhamInput } from "@/types/admin";
 
+type DuLieuSanPham = SanPhamInput | FormData;
+
 export function layDanhSachSanPham() {
   return apiRequest<SanPham[]>("/sanpham");
 }
@@ -9,21 +11,28 @@ export function laySanPham(maSanPham: number) {
   return apiRequest<SanPham>(`/sanpham/${maSanPham}`);
 }
 
-export function themSanPham(duLieu: SanPhamInput) {
+export function themSanPham(duLieu: DuLieuSanPham) {
+  const laFormData = duLieu instanceof FormData;
+
   return apiRequest<SanPham>("/sanpham", {
     method: "POST",
-    body: JSON.stringify(duLieu),
+    body: laFormData ? duLieu : JSON.stringify(duLieu),
   });
 }
 
 export function capNhatSanPham(
   maSanPham: number,
-  duLieu: Partial<SanPhamInput>,
+  duLieu: Partial<SanPhamInput> | FormData,
 ) {
-  return apiRequest<SanPham>(`/sanpham/${maSanPham}`, {
-    method: "PUT",
-    body: JSON.stringify(duLieu),
-  });
+  const laFormData = duLieu instanceof FormData;
+
+  return apiRequest<SanPham>(
+    `/sanpham/${maSanPham}`,
+    {
+      method: laFormData ? "POST" : "PUT",
+      body: laFormData ? duLieu : JSON.stringify(duLieu),
+    },
+  );
 }
 
 export function xoaSanPham(maSanPham: number) {
