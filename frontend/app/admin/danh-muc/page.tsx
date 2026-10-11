@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { SyntheticEvent, useEffect, useState } from "react";
-import type { DanhMuc, DanhMucInput } from "@/types/admin";
+import type { DanhMuc } from "@/types/admin";
 import {
   capNhatDanhMuc,
   layDanhSachDanhMuc,
@@ -13,6 +15,8 @@ type BieuMauDanhMuc = {
   ten_danh_muc: string;
   ma_danh_muc_cha: string;
   mo_ta: string;
+  anh_dai_dien: string;
+  anh_file: File | null;
   trang_thai: "hoat_dong" | "tam_ngung";
 };
 
@@ -20,8 +24,40 @@ const bieuMauRong: BieuMauDanhMuc = {
   ten_danh_muc: "",
   ma_danh_muc_cha: "",
   mo_ta: "",
+  anh_dai_dien: "",
+  anh_file: null,
   trang_thai: "hoat_dong",
 };
+
+function AnhDaiDienDanhMuc({
+  duongDan,
+  tenDanhMuc,
+}: {
+  duongDan?: string | null;
+  tenDanhMuc: string;
+}) {
+  const [biLoi, setBiLoi] = useState(false);
+
+  if (!duongDan || biLoi) {
+    return (
+      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-[10px] text-slate-400">
+        Không có ảnh
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={duongDan}
+      alt={tenDanhMuc}
+      width={48}
+      height={48}
+      unoptimized
+      onError={() => setBiLoi(true)}
+      className="h-12 w-12 rounded-lg border border-slate-200 object-cover"
+    />
+  );
+}
 
 function taoDuongDan(tenDanhMuc: string) {
   return tenDanhMuc
@@ -103,10 +139,41 @@ export default function QuanLyDanhMuc() {
         ? String(danhMuc.ma_danh_muc_cha)
         : "",
       mo_ta: danhMuc.mo_ta ?? "",
+      anh_dai_dien: danhMuc.anh_dai_dien ?? "",
+      anh_file: null,
       trang_thai: danhMuc.trang_thai,
     });
     setLoi("");
     setDangMoForm(true);
+  }
+
+  function taoDuLieuGuiDi(): FormData {
+    const duLieu = new FormData();
+
+    duLieu.append(
+      "ten_danh_muc",
+      bieuMau.ten_danh_muc.trim(),
+    );
+    duLieu.append(
+      "duong_dan",
+      taoDuongDan(bieuMau.ten_danh_muc),
+    );
+    duLieu.append(
+      "ma_danh_muc_cha",
+      bieuMau.ma_danh_muc_cha,
+    );
+    duLieu.append("mo_ta", bieuMau.mo_ta.trim());
+    duLieu.append("trang_thai", bieuMau.trang_thai);
+
+    if (bieuMau.anh_file) {
+      duLieu.append("anh_dai_dien", bieuMau.anh_file);
+    }
+
+    if (danhMucDangSua) {
+      duLieu.append("_method", "PUT");
+    }
+
+    return duLieu;
   }
 
   async function xuLyLuu(event: SyntheticEvent<HTMLFormElement>) {
@@ -114,15 +181,7 @@ export default function QuanLyDanhMuc() {
     setDangLuu(true);
     setLoi("");
 
-    const duLieu: DanhMucInput = {
-      ten_danh_muc: bieuMau.ten_danh_muc,
-      duong_dan: taoDuongDan(bieuMau.ten_danh_muc),
-      ma_danh_muc_cha: bieuMau.ma_danh_muc_cha
-        ? Number(bieuMau.ma_danh_muc_cha)
-        : null,
-      mo_ta: bieuMau.mo_ta || undefined,
-      trang_thai: bieuMau.trang_thai,
-    };
+    const duLieu = taoDuLieuGuiDi();
 
     try {
       if (danhMucDangSua) {
@@ -202,13 +261,22 @@ export default function QuanLyDanhMuc() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={moFormThem}
-          className="rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-700"
-        >
-          + Thêm danh mục
-        </button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Link
+            href="/admin/danh-muc/thung-rac"
+            className="rounded-lg bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-rose-700"
+          >
+            Thùng rác
+          </Link>
+
+          <button
+            type="button"
+            onClick={moFormThem}
+            className="rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-700"
+          >
+            + Thêm danh mục
+          </button>
+        </div>
       </div>
 
       {loi && (
@@ -283,13 +351,22 @@ export default function QuanLyDanhMuc() {
                     className="text-slate-700"
                   >
                     <td className="px-5 py-4">
-                      <p className="font-medium text-slate-900">
-                        {danhMuc.ten_danh_muc}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <AnhDaiDienDanhMuc
+                          duongDan={danhMuc.anh_dai_dien}
+                          tenDanhMuc={danhMuc.ten_danh_muc}
+                        />
 
-                      <p className="mt-1 text-xs text-slate-400">
-                        Mã: {danhMuc.ma_danh_muc}
-                      </p>
+                        <div>
+                          <p className="font-medium text-slate-900">
+                            {danhMuc.ten_danh_muc}
+                          </p>
+
+                          <p className="mt-1 text-xs text-slate-400">
+                            Mã: {danhMuc.ma_danh_muc}
+                          </p>
+                        </div>
+                      </div>
                     </td>
 
                     <td className="px-5 py-4 text-slate-500">
@@ -449,6 +526,46 @@ export default function QuanLyDanhMuc() {
                   <option value="hoat_dong">Hoạt động</option>
                   <option value="tam_ngung">Tạm ngưng</option>
                 </select>
+              </label>
+
+              <label className="block">
+                <span className="mb-1 block text-sm font-medium text-slate-700">
+                  Ảnh đại diện
+                </span>
+
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) =>
+                    setBieuMau((bieuMauCu) => ({
+                      ...bieuMauCu,
+                      anh_file: event.target.files?.[0] ?? null,
+                    }))
+                  }
+                  className="block w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-sky-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-sky-700"
+                />
+
+                {bieuMau.anh_file && (
+                  <p className="mt-2 text-xs text-slate-500">
+                    Đã chọn: {bieuMau.anh_file.name}
+                  </p>
+                )}
+
+                {!bieuMau.anh_file && bieuMau.anh_dai_dien && (
+                  <div className="mt-3 flex items-center gap-3">
+                    <Image
+                      src={bieuMau.anh_dai_dien}
+                      alt="Ảnh danh mục hiện tại"
+                      width={56}
+                      height={56}
+                      unoptimized
+                      className="h-14 w-14 rounded-lg border border-slate-200 object-cover"
+                    />
+                    <span className="text-xs text-slate-500">
+                      Ảnh hiện tại
+                    </span>
+                  </div>
+                )}
               </label>
 
               <label className="block">

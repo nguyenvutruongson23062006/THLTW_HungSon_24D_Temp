@@ -36,6 +36,9 @@ Route::post('/change-password', [UserController::class, 'changePassword'])
 // ==================== DANH MỤC ====================
 
 Route::get('/danhmuc', [DanhMucController::class, 'index']);
+Route::get('/danhmuc/thung-rac', [DanhMucController::class, 'thungRac']);
+Route::patch('/danhmuc/{maDanhMuc}/khoi-phuc', [DanhMucController::class, 'khoiPhuc']);
+Route::delete('/danhmuc/{maDanhMuc}/xoa-vinh-vien', [DanhMucController::class, 'xoaVinhVien']);
 Route::get('/danhmuc/{category}', [DanhMucController::class, 'show']);
 Route::post('/danhmuc', [DanhMucController::class, 'store']);
 Route::put('/danhmuc/{category}', [DanhMucController::class, 'update']);

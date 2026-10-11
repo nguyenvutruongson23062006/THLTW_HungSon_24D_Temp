@@ -13,7 +13,7 @@ export interface DanhMucInput {
   duong_dan?: string;
   ma_danh_muc_cha: number | null;
   mo_ta?: string;
-  anh_dai_dien?: string;
+  anh_dai_dien?: string | null;
   trang_thai: "hoat_dong" | "tam_ngung";
 }
 
