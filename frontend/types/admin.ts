@@ -29,7 +29,7 @@ export interface ThuongHieu {
 export interface ThuongHieuInput {
   ten_thuong_hieu: string;
   duong_dan: string;
-  logo?: string;
+  logo?: string | null;
   mo_ta?: string;
   trang_thai: "hoat_dong" | "tam_ngung";
 }

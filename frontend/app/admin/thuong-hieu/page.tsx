@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { SyntheticEvent, useEffect, useState } from "react";
-import type { ThuongHieu, ThuongHieuInput } from "@/types/admin";
+import type { ThuongHieu } from "@/types/admin";
 import {
   capNhatThuongHieu,
   layDanhSachThuongHieu,
@@ -12,6 +14,7 @@ import {
 type BieuMauThuongHieu = {
   ten_thuong_hieu: string;
   logo: string;
+  logo_file: File | null;
   mo_ta: string;
   trang_thai: "hoat_dong" | "tam_ngung";
 };
@@ -19,9 +22,40 @@ type BieuMauThuongHieu = {
 const bieuMauRong: BieuMauThuongHieu = {
   ten_thuong_hieu: "",
   logo: "",
+  logo_file: null,
   mo_ta: "",
   trang_thai: "hoat_dong",
 };
+
+function LogoThuongHieu({
+  duongDan,
+  tenThuongHieu,
+}: {
+  duongDan?: string | null;
+  tenThuongHieu: string;
+}) {
+  const [biLoi, setBiLoi] = useState(false);
+
+  if (!duongDan || biLoi) {
+    return (
+      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-[10px] text-slate-400">
+        Không có logo
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={duongDan}
+      alt={tenThuongHieu}
+      width={48}
+      height={48}
+      unoptimized
+      onError={() => setBiLoi(true)}
+      className="h-12 w-12 rounded-lg border border-slate-200 object-contain p-1"
+    />
+  );
+}
 
 function taoDuongDan(tenThuongHieu: string) {
   return tenThuongHieu
@@ -80,7 +114,7 @@ export default function QuanLyThuongHieu() {
   });
 
   function capNhatTruong(
-    truong: keyof BieuMauThuongHieu,
+    truong: Exclude<keyof BieuMauThuongHieu, "logo_file">,
     giaTri: string,
   ) {
     setBieuMau((bieuMauCu) => ({
@@ -101,6 +135,7 @@ export default function QuanLyThuongHieu() {
     setBieuMau({
       ten_thuong_hieu: thuongHieu.ten_thuong_hieu,
       logo: thuongHieu.logo ?? "",
+      logo_file: null,
       mo_ta: thuongHieu.mo_ta ?? "",
       trang_thai: thuongHieu.trang_thai,
     });
@@ -108,18 +143,37 @@ export default function QuanLyThuongHieu() {
     setDangMoForm(true);
   }
 
+  function taoDuLieuGuiDi(): FormData {
+    const duLieu = new FormData();
+
+    duLieu.append(
+      "ten_thuong_hieu",
+      bieuMau.ten_thuong_hieu.trim(),
+    );
+    duLieu.append(
+      "duong_dan",
+      taoDuongDan(bieuMau.ten_thuong_hieu),
+    );
+    duLieu.append("mo_ta", bieuMau.mo_ta.trim());
+    duLieu.append("trang_thai", bieuMau.trang_thai);
+
+    if (bieuMau.logo_file) {
+      duLieu.append("logo", bieuMau.logo_file);
+    }
+
+    if (thuongHieuDangSua) {
+      duLieu.append("_method", "PUT");
+    }
+
+    return duLieu;
+  }
+
   async function xuLyLuu(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     setDangLuu(true);
     setLoi("");
 
-    const duLieu: ThuongHieuInput = {
-      ten_thuong_hieu: bieuMau.ten_thuong_hieu,
-      duong_dan: taoDuongDan(bieuMau.ten_thuong_hieu),
-      logo: bieuMau.logo || undefined,
-      mo_ta: bieuMau.mo_ta || undefined,
-      trang_thai: bieuMau.trang_thai,
-    };
+    const duLieu = taoDuLieuGuiDi();
 
     try {
       if (thuongHieuDangSua) {
@@ -202,13 +256,22 @@ export default function QuanLyThuongHieu() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={moFormThem}
-          className="rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-700"
-        >
-          + Thêm thương hiệu
-        </button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Link
+            href="/admin/thuong-hieu/thung-rac"
+            className="rounded-lg bg-rose-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-rose-700"
+          >
+            Thùng rác
+          </Link>
+
+          <button
+            type="button"
+            onClick={moFormThem}
+            className="rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-700"
+          >
+            + Thêm thương hiệu
+          </button>
+        </div>
       </div>
 
       {loi && (
@@ -283,13 +346,22 @@ export default function QuanLyThuongHieu() {
                     className="text-slate-700"
                   >
                     <td className="px-5 py-4">
-                      <p className="font-medium text-slate-900">
-                        {thuongHieu.ten_thuong_hieu}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <LogoThuongHieu
+                          duongDan={thuongHieu.logo}
+                          tenThuongHieu={thuongHieu.ten_thuong_hieu}
+                        />
 
-                      <p className="mt-1 text-xs text-slate-400">
-                        Mã: {thuongHieu.ma_thuong_hieu}
-                      </p>
+                        <div>
+                          <p className="font-medium text-slate-900">
+                            {thuongHieu.ten_thuong_hieu}
+                          </p>
+
+                          <p className="mt-1 text-xs text-slate-400">
+                            Mã: {thuongHieu.ma_thuong_hieu}
+                          </p>
+                        </div>
+                      </div>
                     </td>
 
                     <td className="px-5 py-4 text-slate-500">
@@ -391,17 +463,42 @@ export default function QuanLyThuongHieu() {
 
               <label className="block">
                 <span className="mb-1 block text-sm font-medium text-slate-700">
-                  Đường dẫn logo
+                  Logo thương hiệu
                 </span>
 
                 <input
-                  value={bieuMau.logo}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/svg+xml"
                   onChange={(event) =>
-                    capNhatTruong("logo", event.target.value)
+                    setBieuMau((bieuMauCu) => ({
+                      ...bieuMauCu,
+                      logo_file: event.target.files?.[0] ?? null,
+                    }))
                   }
-                  placeholder="/images/brands/honda.png"
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500"
+                  className="block w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 file:mr-3 file:rounded-md file:border-0 file:bg-sky-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-sky-700"
                 />
+
+                {bieuMau.logo_file && (
+                  <p className="mt-2 text-xs text-slate-500">
+                    Đã chọn: {bieuMau.logo_file.name}
+                  </p>
+                )}
+
+                {!bieuMau.logo_file && bieuMau.logo && (
+                  <div className="mt-3 flex items-center gap-3">
+                    <Image
+                      src={bieuMau.logo}
+                      alt="Logo thương hiệu hiện tại"
+                      width={56}
+                      height={56}
+                      unoptimized
+                      className="h-14 w-14 rounded-lg border border-slate-200 object-contain p-1"
+                    />
+                    <span className="text-xs text-slate-500">
+                      Logo hiện tại
+                    </span>
+                  </div>
+                )}
               </label>
 
               <label className="block">

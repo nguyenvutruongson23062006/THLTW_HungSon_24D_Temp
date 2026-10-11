@@ -48,6 +48,9 @@ Route::delete('/danhmuc/{category}', [DanhMucController::class, 'destroy']);
 // ==================== THƯƠNG HIỆU ====================
 
 Route::get('/thuonghieu', [ThuongHieuController::class, 'index']);
+Route::get('/thuonghieu/thung-rac', [ThuongHieuController::class, 'thungRac']);
+Route::patch('/thuonghieu/{maThuongHieu}/khoi-phuc', [ThuongHieuController::class, 'khoiPhuc']);
+Route::delete('/thuonghieu/{maThuongHieu}/xoa-vinh-vien', [ThuongHieuController::class, 'xoaVinhVien']);
 Route::get('/thuonghieu/{thuongHieu}', [ThuongHieuController::class, 'show']);
 Route::post('/thuonghieu', [ThuongHieuController::class, 'store']);
 Route::put('/thuonghieu/{thuongHieu}', [ThuongHieuController::class, 'update']);
