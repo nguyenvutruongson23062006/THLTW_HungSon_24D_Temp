@@ -58,3 +58,4 @@ Route::get('/sanpham/{sanPham}', [SanPhamController::class, 'show']);
 Route::post('/sanpham', [SanPhamController::class, 'store']);
 Route::put('/sanpham/{sanPham}', [SanPhamController::class, 'update']);
 Route::delete('/sanpham/{sanPham}', [SanPhamController::class, 'destroy']);
+Route::delete('/sanpham/{maSanPham}/xoa-vinh-vien', [SanPhamController::class,'xoaVinhVien',]);

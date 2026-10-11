@@ -109,7 +109,7 @@ class SanPhamController extends Controller
         ]);
     }
 
-    // Xóa sản phẩm
+    // Xóa mềm sản phẩm
     public function destroy(SanPham $sanPham)
     {
         $sanPham->delete();
@@ -119,4 +119,19 @@ class SanPhamController extends Controller
             'message' => 'Xóa sản phẩm thành công'
         ]);
     }
+
+    // Xóa vĩnh viễn sản phẩm
+    public function xoaVinhVien(int $maSanPham)
+    {
+        $sanPham = SanPham::onlyTrashed()
+            ->findOrFail($maSanPham);
+
+        $sanPham->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Xóa vĩnh viễn sản phẩm thành công',
+        ]);
+    }
 }
+
