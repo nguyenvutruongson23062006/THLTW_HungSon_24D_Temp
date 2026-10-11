@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SanPham;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class SanPhamController extends Controller
 {
@@ -62,7 +63,12 @@ class SanPhamController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'ten_san_pham' => 'required|string|max:255',
+            'ten_san_pham' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('san_pham', 'ten_san_pham'),
+            ],
             'ma_danh_muc' => 'required|integer',
             'ma_thuong_hieu' => 'required|integer',
             'duong_dan' => 'nullable|string|max:255',
@@ -85,6 +91,8 @@ class SanPhamController extends Controller
             'mo_ta' => 'nullable|string',
             'trang_thai' => 'nullable|string|max:50',
             'luot_xem' => 'nullable|integer|min:0',
+        ], [
+            'ten_san_pham.unique' => 'Tên sản phẩm đã tồn tại. Vui lòng chọn tên khác.',
         ]);
 
         unset($validated['hinh_anh']);
@@ -110,7 +118,16 @@ class SanPhamController extends Controller
     public function update(Request $request, SanPham $sanPham)
     {
         $validated = $request->validate([
-            'ten_san_pham' => 'sometimes|required|string|max:255',
+            'ten_san_pham' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('san_pham', 'ten_san_pham')->ignore(
+                    $sanPham->ma_san_pham,
+                    'ma_san_pham',
+                ),
+            ],
             'ma_danh_muc' => 'sometimes|required|integer',
             'ma_thuong_hieu' => 'sometimes|required|integer',
             'duong_dan' => 'nullable|string|max:255',
@@ -133,6 +150,8 @@ class SanPhamController extends Controller
             'mo_ta' => 'nullable|string',
             'trang_thai' => 'nullable|string|max:50',
             'luot_xem' => 'nullable|integer|min:0',
+        ], [
+            'ten_san_pham.unique' => 'Tên sản phẩm đã tồn tại. Vui lòng chọn tên khác.',
         ]);
 
         unset($validated['hinh_anh']);
