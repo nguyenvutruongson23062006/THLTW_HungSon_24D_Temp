@@ -108,7 +108,7 @@ export default function QuanLyNguoiDung() {
     NguoiDung[]
   >([]);
   const [tuKhoa, setTuKhoa] = useState("");
-  const [vaiTroLoc, setVaiTroLoc] = useState("thanh_vien");
+  const [vaiTroLoc, setVaiTroLoc] = useState("tat_ca");
   const [trangThaiLoc, setTrangThaiLoc] = useState("tat_ca");
   const [dangTai, setDangTai] = useState(true);
   const [dangTaiLai, setDangTaiLai] = useState(false);
@@ -133,7 +133,7 @@ export default function QuanLyNguoiDung() {
       setLoi(
         loiApi instanceof Error
           ? loiApi.message
-          : "Không thể tải danh sách khách hàng.",
+          : "Không thể tải danh sách người dùng.",
       );
     } finally {
       setDangTai(false);
@@ -160,7 +160,7 @@ export default function QuanLyNguoiDung() {
         setLoi(
           loiApi instanceof Error
             ? loiApi.message
-            : "Không thể tải danh sách khách hàng.",
+            : "Không thể tải danh sách người dùng.",
         );
       })
       .finally(() => {
@@ -202,10 +202,6 @@ export default function QuanLyNguoiDung() {
     (nguoiDung) => nguoiDung.trang_thai === "hoat_dong",
   ).length;
 
-  const soKhachHang = danhSachNguoiDung.filter(
-    (nguoiDung) => nguoiDung.vai_tro === "thanh_vien",
-  ).length;
-
   const soNguoiBiKhoa = danhSachNguoiDung.filter(
     (nguoiDung) => nguoiDung.trang_thai !== "hoat_dong",
   ).length;
@@ -217,7 +213,7 @@ export default function QuanLyNguoiDung() {
           <p className="text-sm font-medium text-sky-600">Quản trị</p>
 
           <h1 className="mt-1 text-3xl font-bold text-slate-900">
-            Quản lý khách hàng
+            Quản lý người dùng
           </h1>
 
           <p className="mt-1 text-sm text-slate-500">
@@ -248,18 +244,11 @@ export default function QuanLyNguoiDung() {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-slate-500">Tổng tài khoản</p>
           <p className="mt-2 text-3xl font-bold text-slate-900">
             {danhSachNguoiDung.length}
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-500">Khách hàng</p>
-          <p className="mt-2 text-3xl font-bold text-sky-600">
-            {soKhachHang}
           </p>
         </div>
 
@@ -282,7 +271,7 @@ export default function QuanLyNguoiDung() {
         <div className="flex flex-col gap-4 border-b border-slate-100 p-5 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="font-semibold text-slate-900">
-              Danh sách khách hàng
+              Danh sách người dùng
             </h2>
 
             <p className="mt-1 text-xs text-slate-500">
@@ -324,14 +313,14 @@ export default function QuanLyNguoiDung() {
 
         {dangTai ? (
           <div className="p-8 text-center text-sm text-slate-500">
-            Đang tải danh sách khách hàng...
+            Đang tải danh sách người dùng...
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1050px] text-left text-sm">
               <thead className="bg-slate-50 text-xs text-slate-500">
                 <tr>
-                  <th className="px-5 py-3 font-medium">Khách hàng</th>
+                  <th className="px-5 py-3 font-medium">Người dùng</th>
                   <th className="px-5 py-3 font-medium">Liên hệ</th>
                   <th className="px-5 py-3 font-medium">Địa chỉ</th>
                   <th className="px-5 py-3 font-medium">Vai trò</th>
@@ -417,7 +406,7 @@ export default function QuanLyNguoiDung() {
 
             {danhSachHienThi.length === 0 && !loi && (
               <div className="p-8 text-center text-sm text-slate-500">
-                Không tìm thấy khách hàng phù hợp.
+                Không tìm thấy người dùng phù hợp.
               </div>
             )}
           </div>

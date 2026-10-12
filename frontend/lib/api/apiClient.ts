@@ -33,7 +33,7 @@ export async function apiRequest<T>(
   const duLieu = await phanHoi.json();
 
   if (!phanHoi.ok) {
-    if (phanHoi.status === 401) {
+    if (phanHoi.status === 401 && duongDan !== "/login") {
       throw new Error(
         "Phiên đăng nhập đã hết hạn hoặc chưa đăng nhập tài khoản quản trị.",
       );

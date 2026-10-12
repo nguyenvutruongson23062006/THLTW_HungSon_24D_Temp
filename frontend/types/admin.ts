@@ -31,6 +31,12 @@ export interface NguoiDung {
   ngay_cap_nhat: string | null;
 }
 
+export interface KetQuaDangNhap {
+  message: string;
+  user: NguoiDung;
+  token: string;
+}
+
 export interface ThuongHieu {
   ma_thuong_hieu: number;
   ten_thuong_hieu: string;
