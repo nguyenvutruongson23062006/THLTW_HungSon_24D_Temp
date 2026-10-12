@@ -7,6 +7,7 @@ use App\Http\Controllers\DanhMucController;
 use App\Http\Controllers\ThuongHieuController;
 use App\Http\Controllers\SanPhamController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DonHangController;
 
 // ==================== AUTH ====================
 
@@ -67,3 +68,12 @@ Route::put('/sanpham/{sanPham}', [SanPhamController::class, 'update']);
 Route::delete('/sanpham/{sanPham}', [SanPhamController::class, 'destroy']);
 Route::patch('/sanpham/{maSanPham}/khoi-phuc', [SanPhamController::class, 'khoiPhuc',]);
 Route::delete('/sanpham/{maSanPham}/xoa-vinh-vien', [SanPhamController::class, 'xoaVinhVien',]);
+
+Route::prefix('admin')
+    ->middleware(['auth:sanctum', 'kiem_tra_vai_tro'])
+    ->group(function () {
+        Route::get('/don-hang', [DonHangController::class, 'index']);
+
+        Route::get('/don-hang/{maDonHang}', [DonHangController::class, 'show'])
+            ->whereNumber('maDonHang');
+    });
