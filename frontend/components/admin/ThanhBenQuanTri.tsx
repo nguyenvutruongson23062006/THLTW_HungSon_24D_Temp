@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+
+import { dangXuat } from "@/lib/api/authApi";
 
 const mucQuanTri = [
   { nhan: "Dashboard", duongDan: "/admin", bieuTuong: "⌂" },
   { nhan: "Xe máy", duongDan: "/admin/san-pham", bieuTuong: "♢" },
   { nhan: "Hãng xe", duongDan: "/admin/thuong-hieu", bieuTuong: "◈" },
   { nhan: "Danh mục", duongDan: "/admin/danh-muc", bieuTuong: "▤" },
-  { nhan: "Khách hàng", duongDan: "/admin/nguoi-dung", bieuTuong: "♙" },
+  { nhan: "Người dùng", duongDan: "/admin/nguoi-dung", bieuTuong: "♙" },
   { nhan: "Đơn hàng", duongDan: "/admin/don-hang", bieuTuong: "▱" },
   { nhan: "Nhập hàng", duongDan: "/admin/phieu-nhap", bieuTuong: "↓" },
   { nhan: "Xuất hàng", duongDan: "/admin/phieu-xuat", bieuTuong: "↑" },
@@ -18,6 +20,7 @@ const mucQuanTri = [
 
 export default function ThanhBenQuanTri() {
   const duongDanHienTai = usePathname();
+  const router = useRouter();
 
   function dangChon(duongDan: string) {
     return duongDan === "/admin"
@@ -65,6 +68,10 @@ export default function ThanhBenQuanTri() {
       <div className="border-t border-white/10 px-5 py-5">
         <button
           type="button"
+          onClick={async () => {
+            await dangXuat();
+            router.replace("/login");
+          }}
           className="flex items-center gap-3 text-sm text-slate-200 transition hover:text-white"
         >
           <span className="text-lg" aria-hidden="true">

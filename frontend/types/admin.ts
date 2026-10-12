@@ -17,6 +17,26 @@ export interface DanhMucInput {
   trang_thai: "hoat_dong" | "tam_ngung";
 }
 
+export interface NguoiDung {
+  ma_nguoi_dung: number;
+  ho_ten: string;
+  ten_dang_nhap: string;
+  dia_chi_email: string;
+  anh_dai_dien: string | null;
+  so_dien_thoai: string | null;
+  dia_chi: string | null;
+  vai_tro: string;
+  trang_thai: string;
+  ngay_tao: string | null;
+  ngay_cap_nhat: string | null;
+}
+
+export interface KetQuaDangNhap {
+  message: string;
+  user: NguoiDung;
+  token: string;
+}
+
 export interface ThuongHieu {
   ma_thuong_hieu: number;
   ten_thuong_hieu: string;
