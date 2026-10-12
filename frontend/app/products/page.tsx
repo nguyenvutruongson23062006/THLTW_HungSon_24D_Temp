@@ -3,19 +3,51 @@
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import ProductFilter from "@/components/ProductFilter";
-import { products } from "@/lib/products";
+import { getProducts, type Product } from "@/lib/products";
 
 const PRODUCTS_PER_PAGE = 4;
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
-  const [motoType, setMotoType] = useState("all");
   const [brand, setBrand] = useState("all");
   const [price, setPrice] = useState("all");
   const [sort, setSort] = useState("default");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [urlReady, setUrlReady] = useState(false);
+
+  // =========================
+  // LOAD PRODUCTS FROM LARAVEL
+  // =========================
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await getProducts();
+
+        setProducts(data);
+      } catch (error) {
+        console.error("Lỗi tải sản phẩm:", error);
+        setError("Không thể tải danh sách sản phẩm.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProducts();
+  }, []);
+
+  // =========================
+  // READ URL
+  // =========================
 
   useEffect(() => {
     function readUrl() {
@@ -23,7 +55,6 @@ export default function ProductsPage() {
 
       setSearch(params.get("q") ?? "");
       setCategory(params.get("category") ?? "all");
-      setMotoType(params.get("motoType") ?? "all");
       setBrand(params.get("brand") ?? "all");
       setPrice(params.get("price") ?? "all");
       setSort(params.get("sort") ?? "default");
@@ -42,6 +73,10 @@ export default function ProductsPage() {
     };
   }, []);
 
+  // =========================
+  // UPDATE URL
+  // =========================
+
   useEffect(() => {
     if (!urlReady) return;
 
@@ -53,10 +88,6 @@ export default function ProductsPage() {
 
     if (category !== "all") {
       params.set("category", category);
-    }
-
-    if (category === "moto" && motoType !== "all") {
-      params.set("motoType", motoType);
     }
 
     if (brand !== "all") {
@@ -80,7 +111,11 @@ export default function ProductsPage() {
     const nextUrl = query ? `/products?${query}` : "/products";
 
     window.history.replaceState(null, "", nextUrl);
-  }, [brand, category, currentPage, motoType, price, search, sort, urlReady]);
+  }, [brand, category, currentPage, price, search, sort, urlReady]);
+
+  // =========================
+  // FILTER HANDLERS
+  // =========================
 
   function handleSearch(keyword: string) {
     setSearch(keyword);
@@ -89,16 +124,6 @@ export default function ProductsPage() {
 
   function handleCategoryChange(value: string) {
     setCategory(value);
-
-    if (value !== "moto") {
-      setMotoType("all");
-    }
-
-    setCurrentPage(1);
-  }
-
-  function handleMotoTypeChange(value: string) {
-    setMotoType(value);
     setCurrentPage(1);
   }
 
@@ -117,20 +142,33 @@ export default function ProductsPage() {
     setCurrentPage(1);
   }
 
+  // =========================
+  // FILTER PRODUCTS
+  // =========================
+
   let filteredProducts = products.filter((product) => {
+    // Tìm kiếm
     const matchSearch = product.ten
       .toLowerCase()
       .includes(search.toLowerCase());
 
-    const matchCategory = category === "all" || product.category === category;
+    // Danh mục từ DB
+    const matchCategory =
+      category === "all"
+        ? true
+        : category === "moto"
+          ? [1, 2, 3, 4].includes(product.categoryId)
+          : category === "accessory"
+            ? [7, 9, 10].includes(product.categoryId)
+            : category === "oil"
+              ? product.categoryId === 6
+              : category === "gear"
+                ? product.categoryId === 5
+                : product.categoryId === Number(category);
+    // Thương hiệu từ DB
+    const matchBrand = brand === "all" || product.brandId === Number(brand);
 
-    const matchMotoType =
-      category !== "moto" ||
-      motoType === "all" ||
-      product.motoType === motoType;
-
-    const matchBrand = brand === "all" || product.brand === brand;
-
+    // Giá
     const sellingPrice = product.giaKhuyenMai;
 
     const matchPrice =
@@ -144,10 +182,12 @@ export default function ProductsPage() {
         sellingPrice <= 300000000) ||
       (price === "over-300" && sellingPrice > 300000000);
 
-    return (
-      matchSearch && matchCategory && matchMotoType && matchBrand && matchPrice
-    );
+    return matchSearch && matchCategory && matchBrand && matchPrice;
   });
+
+  // =========================
+  // SORT
+  // =========================
 
   if (sort === "price-asc") {
     filteredProducts = [...filteredProducts].sort(
@@ -165,6 +205,10 @@ export default function ProductsPage() {
     filteredProducts = [...filteredProducts].sort((a, b) => b.id - a.id);
   }
 
+  // =========================
+  // PAGINATION
+  // =========================
+
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
 
   const safePage = totalPages > 0 ? Math.min(currentPage, totalPages) : 1;
@@ -176,6 +220,10 @@ export default function ProductsPage() {
     startIndex + PRODUCTS_PER_PAGE,
   );
 
+  // =========================
+  // RENDER
+  // =========================
+
   return (
     <main className="w-full px-6 py-12">
       <h1 className="mb-8 text-3xl font-bold text-white">Tất cả sản phẩm</h1>
@@ -183,19 +231,26 @@ export default function ProductsPage() {
       <ProductFilter
         search={search}
         category={category}
-        motoType={motoType}
         brand={brand}
         price={price}
         sort={sort}
+        products={products}
         onSearch={handleSearch}
         onCategoryChange={handleCategoryChange}
-        onMotoTypeChange={handleMotoTypeChange}
         onBrandChange={handleBrandChange}
         onPriceChange={handlePriceChange}
         onSortChange={handleSortChange}
       />
 
-      {filteredProducts.length === 0 ? (
+      {loading ? (
+        <div className="rounded-xl bg-white p-8 text-center">
+          <p className="text-gray-500">Đang tải sản phẩm...</p>
+        </div>
+      ) : error ? (
+        <div className="rounded-xl bg-white p-8 text-center">
+          <p className="text-red-500">{error}</p>
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="rounded-xl bg-white p-8 text-center">
           <p className="text-gray-500">Không tìm thấy sản phẩm phù hợp.</p>
         </div>

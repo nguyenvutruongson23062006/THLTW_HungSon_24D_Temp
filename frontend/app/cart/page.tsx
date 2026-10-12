@@ -12,7 +12,6 @@ import {
   initializeCart,
   updateCartQuantity,
 } from "@/lib/cart";
-import { products } from "@/lib/products";
 
 const emptyCart: CartItem[] = [];
 
@@ -40,14 +39,8 @@ export default function CartPage() {
   }
 
   function handleIncrease(item: CartItem) {
-    const product = products.find((product) => product.id === item.id);
-
-    if (!product) {
-      return;
-    }
-
-    if (item.quantity >= product.tonKho) {
-      alert(`Sản phẩm chỉ còn ${product.tonKho} sản phẩm trong kho.`);
+    if (item.quantity >= item.tonKho) {
+      alert(`Sản phẩm chỉ còn ${item.tonKho} sản phẩm trong kho.`);
       return;
     }
 
@@ -78,11 +71,7 @@ export default function CartPage() {
         <>
           <div className="space-y-5">
             {cart.map((item) => {
-              const product = products.find(
-                (product) => product.id === item.id,
-              );
-
-              const stock = product?.tonKho ?? 0;
+              const stock = item.tonKho;
 
               const itemTotal = item.giaKhuyenMai * item.quantity;
 

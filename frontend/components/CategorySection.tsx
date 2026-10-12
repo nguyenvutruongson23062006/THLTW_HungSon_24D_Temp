@@ -9,7 +9,7 @@ const categories = [
   {
     name: "Phụ kiện",
     description: "Phụ kiện dành cho xe",
-    href: "/products?category=accessories",
+    href: "/products?category=accessory",
   },
   {
     name: "Dầu nhớt",
