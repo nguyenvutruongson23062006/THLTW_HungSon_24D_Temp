@@ -76,4 +76,9 @@ Route::prefix('admin')
 
         Route::get('/don-hang/{maDonHang}', [DonHangController::class, 'show'])
             ->whereNumber('maDonHang');
+        Route::patch(
+            '/don-hang/{maDonHang}/trang-thai',
+            [DonHangController::class, 'updateStatus']
+            )->whereNumber('maDonHang');
     });
+    

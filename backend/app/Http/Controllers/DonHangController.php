@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use App\Models\DonHang;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -124,5 +125,77 @@ class DonHangController extends Controller
                 )->values(),
             ],
         ]);
+    }
+        public function updateStatus(Request $request, int $maDonHang): JsonResponse
+    {
+        $duLieu = $request->validate([
+            'trang_thai' => [
+                'required',
+                'string',
+                Rule::in([
+                    'cho_xac_nhan',
+                    'da_xac_nhan',
+                    'dang_giao',
+                    'hoan_tat',
+                    'da_huy',
+                ]),
+            ],
+            'trang_thai_hien_tai' => ['required', 'string'],
+        ]);
+
+        return DB::transaction(function () use ($maDonHang, $duLieu) {
+            $donHang = DonHang::query()
+                ->lockForUpdate()
+                ->findOrFail($maDonHang);
+
+            // Tránh ghi đè khi người khác đã xử lý đơn.
+            if ($donHang->trang_thai !== $duLieu['trang_thai_hien_tai']) {
+                return response()->json([
+                    'message' => 'Đơn hàng đã được cập nhật. Hãy tải lại trước khi thao tác.',
+                ], 409);
+            }
+
+            $cacBuocChoPhep = [
+                'cho_xac_nhan' => ['da_xac_nhan', 'da_huy'],
+                'da_xac_nhan' => ['dang_giao', 'da_huy'],
+                'dang_giao' => ['hoan_tat'],
+                'hoan_tat' => [],
+                'da_huy' => [],
+            ];
+
+            $trangThaiMoi = $duLieu['trang_thai'];
+
+            if (!in_array(
+                $trangThaiMoi,
+                $cacBuocChoPhep[$donHang->trang_thai] ?? [],
+                true
+            )) {
+                return response()->json([
+                    'message' => 'Không được chuyển sang trạng thái này.',
+                ], 422);
+            }
+
+            // Chưa có luồng hoàn tiền nên không hủy đơn đã thu tiền.
+            if (
+                $trangThaiMoi === 'da_huy'
+                && $donHang->trang_thai_thanh_toan !== 'chua_thanh_toan'
+            ) {
+                return response()->json([
+                    'message' => 'Đơn này cần xử lý thanh toán/hoàn tiền trước khi hủy.',
+                ], 422);
+            }
+
+            $donHang->trang_thai = $trangThaiMoi;
+            $donHang->save();
+
+            return response()->json([
+                'message' => 'Cập nhật trạng thái thành công.',
+                'data' => [
+                    'ma_don_hang' => $donHang->ma_don_hang,
+                    'trang_thai' => $donHang->trang_thai,
+                    'ngay_cap_nhat' => $donHang->ngay_cap_nhat,
+                ],
+            ]);
+        });
     }
 }
