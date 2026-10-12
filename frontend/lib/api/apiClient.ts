@@ -6,11 +6,21 @@ export async function apiRequest<T>(
   tuyChon?: RequestInit,
 ): Promise<T> {
   const laFormData = tuyChon?.body instanceof FormData;
+  const token =
+    typeof window !== "undefined"
+      ? window.localStorage.getItem("auth_token") ??
+        window.localStorage.getItem("token")
+      : null;
 
   const phanHoi = await fetch(`${API_URL}${duongDan}`, {
     ...tuyChon,
     headers: {
       Accept: "application/json",
+      ...(token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : {}),
       ...(laFormData
         ? {}
         : {
@@ -23,6 +33,18 @@ export async function apiRequest<T>(
   const duLieu = await phanHoi.json();
 
   if (!phanHoi.ok) {
+    if (phanHoi.status === 401) {
+      throw new Error(
+        "Phiên đăng nhập đã hết hạn hoặc chưa đăng nhập tài khoản quản trị.",
+      );
+    }
+
+    if (phanHoi.status === 403) {
+      throw new Error(
+        "Bạn không có quyền truy cập chức năng quản trị này.",
+      );
+    }
+
     throw new Error(duLieu.message ?? "Gọi API thất bại");
   }
 
