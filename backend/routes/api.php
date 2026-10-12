@@ -36,6 +36,9 @@ Route::post('/change-password', [UserController::class, 'changePassword'])
 // ==================== DANH MỤC ====================
 
 Route::get('/danhmuc', [DanhMucController::class, 'index']);
+Route::get('/danhmuc/thung-rac', [DanhMucController::class, 'thungRac']);
+Route::patch('/danhmuc/{maDanhMuc}/khoi-phuc', [DanhMucController::class, 'khoiPhuc']);
+Route::delete('/danhmuc/{maDanhMuc}/xoa-vinh-vien', [DanhMucController::class, 'xoaVinhVien']);
 Route::get('/danhmuc/{category}', [DanhMucController::class, 'show']);
 Route::post('/danhmuc', [DanhMucController::class, 'store']);
 Route::put('/danhmuc/{category}', [DanhMucController::class, 'update']);
@@ -45,6 +48,9 @@ Route::delete('/danhmuc/{category}', [DanhMucController::class, 'destroy']);
 // ==================== THƯƠNG HIỆU ====================
 
 Route::get('/thuonghieu', [ThuongHieuController::class, 'index']);
+Route::get('/thuonghieu/thung-rac', [ThuongHieuController::class, 'thungRac']);
+Route::patch('/thuonghieu/{maThuongHieu}/khoi-phuc', [ThuongHieuController::class, 'khoiPhuc']);
+Route::delete('/thuonghieu/{maThuongHieu}/xoa-vinh-vien', [ThuongHieuController::class, 'xoaVinhVien']);
 Route::get('/thuonghieu/{thuongHieu}', [ThuongHieuController::class, 'show']);
 Route::post('/thuonghieu', [ThuongHieuController::class, 'store']);
 Route::put('/thuonghieu/{thuongHieu}', [ThuongHieuController::class, 'update']);
@@ -54,7 +60,10 @@ Route::delete('/thuonghieu/{thuongHieu}', [ThuongHieuController::class, 'destroy
 // ==================== SẢN PHẨM ====================
 
 Route::get('/sanpham', [SanPhamController::class, 'index']);
+Route::get('/sanpham/thung-rac', [SanPhamController::class, 'thungRac',]);
 Route::get('/sanpham/{sanPham}', [SanPhamController::class, 'show']);
 Route::post('/sanpham', [SanPhamController::class, 'store']);
 Route::put('/sanpham/{sanPham}', [SanPhamController::class, 'update']);
 Route::delete('/sanpham/{sanPham}', [SanPhamController::class, 'destroy']);
+Route::patch('/sanpham/{maSanPham}/khoi-phuc', [SanPhamController::class, 'khoiPhuc',]);
+Route::delete('/sanpham/{maSanPham}/xoa-vinh-vien', [SanPhamController::class, 'xoaVinhVien',]);
