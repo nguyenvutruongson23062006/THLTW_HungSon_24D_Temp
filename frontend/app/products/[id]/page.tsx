@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import AddToCartButton from "@/components/AddToCartButtonProps";
-import { products } from "@/lib/products";
+import { getProductById, getProducts } from "@/lib/products";
 
 type ProductDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -13,7 +13,7 @@ export default async function ProductDetailPage({
   const { id } = await params;
   const productId = Number(id);
 
-  const product = products.find((item) => item.id === productId);
+  const product = await getProductById(productId);
 
   if (!product) {
     return (
@@ -30,7 +30,9 @@ export default async function ProductDetailPage({
     );
   }
 
-  const relatedProducts = products.filter((item) => item.id !== product.id);
+  const allProducts = await getProducts();
+
+  const relatedProducts = allProducts.filter((item) => item.id !== product.id);
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">

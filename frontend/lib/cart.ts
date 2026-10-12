@@ -1,5 +1,3 @@
-import { products } from "@/lib/products";
-
 export type CartItem = {
   id: number;
   ten: string;
@@ -7,6 +5,7 @@ export type CartItem = {
   giaKhuyenMai: number;
   image: string;
   quantity: number;
+  tonKho: number;
 };
 
 const CART_KEY = "cart";
@@ -73,21 +72,13 @@ export function initializeCart() {
 
   cachedCart = loadCartFromStorage();
 
-  // Đồng bộ giỏ hàng với tồn kho hiện tại.
+  // Kiểm tra dữ liệu cart đã lưu.
   cachedCart = cachedCart
-    .map((item) => {
-      const product = products.find((product) => product.id === item.id);
-
-      if (!product || product.tonKho <= 0) {
-        return null;
-      }
-
-      return {
-        ...item,
-        quantity: Math.min(item.quantity, product.tonKho),
-      };
-    })
-    .filter((item): item is CartItem => item !== null);
+    .filter((item) => item.tonKho > 0)
+    .map((item) => ({
+      ...item,
+      quantity: Math.min(item.quantity, item.tonKho),
+    }));
 
   localStorage.setItem(CART_KEY, JSON.stringify(cachedCart));
 
@@ -99,9 +90,7 @@ export function addToCart(item: CartItem): boolean {
     return false;
   }
 
-  const product = products.find((product) => product.id === item.id);
-
-  if (!product || product.tonKho <= 0) {
+  if (item.tonKho <= 0) {
     return false;
   }
 
@@ -112,15 +101,18 @@ export function addToCart(item: CartItem): boolean {
   if (existingItem) {
     const nextQuantity = existingItem.quantity + item.quantity;
 
-    if (nextQuantity > product.tonKho) {
-      existingItem.quantity = product.tonKho;
-    } else {
-      existingItem.quantity = nextQuantity;
-    }
+    existingItem.quantity = Math.min(nextQuantity, item.tonKho);
+
+    // Cập nhật thông tin sản phẩm mới nhất.
+    existingItem.ten = item.ten;
+    existingItem.gia = item.gia;
+    existingItem.giaKhuyenMai = item.giaKhuyenMai;
+    existingItem.image = item.image;
+    existingItem.tonKho = item.tonKho;
   } else {
     cart.push({
       ...item,
-      quantity: Math.min(item.quantity, product.tonKho),
+      quantity: Math.min(item.quantity, item.tonKho),
     });
   }
 
@@ -138,15 +130,6 @@ export function updateCartQuantity(id: number, quantity: number): boolean {
     return false;
   }
 
-  const product = products.find((product) => product.id === id);
-
-  if (!product || product.tonKho <= 0) {
-    removeFromCart(id);
-    return false;
-  }
-
-  const nextQuantity = Math.max(1, Math.min(quantity, product.tonKho));
-
   const cart = [...cachedCart];
 
   const item = cart.find((cartItem) => cartItem.id === id);
@@ -154,6 +137,13 @@ export function updateCartQuantity(id: number, quantity: number): boolean {
   if (!item) {
     return false;
   }
+
+  if (item.tonKho <= 0) {
+    removeFromCart(id);
+    return false;
+  }
+
+  const nextQuantity = Math.max(1, Math.min(quantity, item.tonKho));
 
   item.quantity = nextQuantity;
 
