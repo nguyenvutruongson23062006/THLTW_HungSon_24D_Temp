@@ -6,18 +6,18 @@ import BlogCard from "@/components/BlogCard";
 const blogs = [
   {
     id: 1,
-    title: "Top sản phẩm hiệu năng đáng mua năm 2026",
-    description: "Khám phá những sản phẩm công nghệ nổi bật và đáng chú ý.",
+    title: "Cách chọn xe máy phù hợp với nhu cầu",
+    description: "Những tiêu chí về mục đích sử dụng, tư thế ngồi và ngân sách khi lựa chọn xe máy.",
   },
   {
     id: 2,
-    title: "Cách chọn moto phù hợp với nhu cầu",
-    description: "Một số tiêu chí giúp bạn chọn chiếc moto phù hợp.",
+    title: "Bảo dưỡng xe máy: những hạng mục cần lưu ý",
+    description: "Tìm hiểu việc kiểm tra dầu máy, lốp, phanh và lịch bảo dưỡng theo hướng dẫn của nhà sản xuất.",
   },
   {
     id: 3,
-    title: "Những phụ kiện cần có",
-    description: "Các phụ kiện hữu ích cho chuyến đi.",
+    title: "Cách chọn mũ bảo hiểm vừa vặn",
+    description: "Những điểm cần chú ý về kích cỡ, quai cài và độ vừa vặn khi chọn mũ bảo hiểm.",
   },
 ];
 
