@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import ProductCard from "@/components/ProductCard";
 import { getProducts, type Product } from "@/lib/products";
 
 export default function ProductSection() {
@@ -122,6 +123,27 @@ export default function ProductSection() {
         >
           →
         </button>
+      </div>
+      <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {products.slice(0, 4).map((item) => (
+          <ProductCard
+            key={item.id}
+            id={item.id}
+            name={item.ten}
+            originalPrice={item.gia}
+            price={item.giaKhuyenMai}
+            image={item.image}
+          />
+        ))}
+      </div>
+
+      <div className="mt-8 text-center">
+        <Link
+          href="/products"
+          className="inline-block font-semibold text-blue-400 underline-offset-4 transition hover:text-blue-300 hover:underline"
+        >
+          Xem thêm
+        </Link>
       </div>
     </section>
   );
