@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import ProductGallery from "@/components/ProductGallery";
 import AddToCartButton from "@/components/AddToCartButtonProps";
 import { getProductById, getProducts } from "@/lib/products";
 
@@ -44,16 +45,7 @@ export default async function ProductDetailPage({
       </Link>
 
       <div className="grid gap-10 md:grid-cols-2">
-        <div className="overflow-hidden rounded-xl border bg-white">
-          <Image
-            src={product.image}
-            alt={product.ten}
-            width={600}
-            height={600}
-            loading="eager"
-            className="h-auto w-full object-cover"
-          />
-        </div>
+        <ProductGallery key={product.id} images={product.images.length ? product.images : [product.image]} name={product.ten} />
 
         <div>
           <h1 className="text-4xl font-bold text-white">{product.ten}</h1>
