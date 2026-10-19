@@ -14,6 +14,7 @@ export type Product = {
   gia: number;
   giaKhuyenMai: number;
   image: string;
+  images: string[];
   category: ProductCategory;
   categoryId: number;
   categoryName: string;
@@ -35,6 +36,10 @@ type BackendProduct = {
   so_luong_ton?: number | null;
   anh_dai_dien?: string | null;
   mo_ta?: string | null;
+  hinh_anh_san_phams?: {
+    duong_dan: string;
+    thu_tu_hien_thi: number;
+  }[];
 
   danh_muc?: {
     ma_danh_muc: number;
@@ -89,6 +94,13 @@ function mapProduct(product: BackendProduct): Product {
     giaKhuyenMai: Number(product.gia_khuyen_mai ?? product.gia_ban),
 
     image: product.anh_dai_dien ?? "/products/default.jpg",
+    images: Array.from(new Set([
+      ...(product.anh_dai_dien ? [product.anh_dai_dien] : []),
+      ...(product.hinh_anh_san_phams ?? [])
+        .slice()
+        .sort((a, b) => a.thu_tu_hien_thi - b.thu_tu_hien_thi)
+        .map((image) => image.duong_dan),
+    ])),
 
     category: mapCategory(product.ma_danh_muc),
 
