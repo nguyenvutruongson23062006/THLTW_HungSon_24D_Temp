@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             NguoiDungSeeder::class,
             CatalogSeeder::class,
             SanPhamSeeder::class,
+            ExpandedCatalogSeeder::class,
+            PublicProductImagesSeeder::class,
             ContentSeeder::class,
             DonHangSeeder::class,
             KhoSeeder::class,
