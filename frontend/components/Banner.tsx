@@ -1,14 +1,26 @@
 import Link from "next/link";
 export default function Banner() {
   return (
-    <section className="bg-gray-100">
-      <div className="mx-auto max-w-7xl px-6 py-20 text-center">
-        <h2 className="text-4xl font-bold tracking-tight text-gray-900">
-          chào mừng đến với thiên đường MOTO
+    <section className="relative isolate overflow-hidden bg-gray-950">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover"
+      >
+        <source src="/videos/daytona-660-hero.webm" type="video/webm" />
+      </video>
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/60" />
+      <div className="mx-auto max-w-7xl px-6 py-20 text-center sm:py-28">
+        <h2 className="text-4xl font-bold tracking-tight text-white">
+          Chào mừng đến với thiên đường MOTO
         </h2>
 
-        <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
-          Khám phá những cổ máy đỉnh cao, mạnh mẽ và đầy phong cách, được thiết
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-200">
+          Khám phá những cỗ máy đỉnh cao, mạnh mẽ và đầy phong cách, được thiết
           kế để chinh phục mọi cung đường. Từ những chiếc mô tô thể thao đến
           những chiếc cruiser sang trọng, chúng tôi mang đến cho bạn trải nghiệm
           lái xe tuyệt vời và cảm giác tự do trên hai bánh.
