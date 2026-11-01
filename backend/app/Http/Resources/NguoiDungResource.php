@@ -21,6 +21,7 @@ class NguoiDungResource extends JsonResource
             'trang_thai' => $this->trang_thai,
             'ngay_tao' => $this->ngay_tao,
             'ngay_cap_nhat' => $this->ngay_cap_nhat,
+            'ngay_xoa' => $this->ngay_xoa,
         ];
     }
 }

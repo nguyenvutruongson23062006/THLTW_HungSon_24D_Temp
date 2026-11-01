@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import GhiNhanThanhToan from "@/components/admin/GhiNhanThanhToan";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -12,6 +13,8 @@ import {
 const TRANG_THAI: Record<string, string> = {
   cho_xac_nhan: "Chờ xác nhận",
   da_xac_nhan: "Đã xác nhận",
+  dang_xu_ly: "Đang xử lý",
+  da_giao: "Đã giao",
   dang_giao: "Đang giao",
   hoan_tat: "Hoàn tất",
   da_huy: "Đã hủy",
@@ -32,6 +35,7 @@ const PHUONG_THUC: Record<string, string> = {
 const CHUYEN_TRANG_THAI: Record<string, string[]> = {
   cho_xac_nhan: ["da_xac_nhan", "da_huy"],
   da_xac_nhan: ["dang_giao", "da_huy"],
+  dang_xu_ly: ["dang_giao", "da_huy"],
   dang_giao: ["hoan_tat"],
   hoan_tat: [],
   da_huy: [],
@@ -79,7 +83,7 @@ export default function TrangChiTietDonHang() {
     ? (CHUYEN_TRANG_THAI[donHang.trang_thai] ?? []).filter(
         (trangThai) =>
           trangThai !== "da_huy" ||
-          donHang.trang_thai_thanh_toan === "chua_thanh_toan",
+          donHang.trang_thai_thanh_toan !== "da_thanh_toan",
       )
     : [];
 
@@ -290,6 +294,16 @@ export default function TrangChiTietDonHang() {
             )}
           </section>
           <div className="grid gap-6 xl:grid-cols-3">
+            <div className="xl:col-span-3">
+              <GhiNhanThanhToan
+                ma={donHang.ma_don_hang}
+                trangThai={donHang.trang_thai_thanh_toan}
+                trangThaiDon={donHang.trang_thai}
+                onCapNhat={(data) =>
+                  setDonHang((cu) => (cu ? { ...cu, ...data } : cu))
+                }
+              />
+            </div>
             <div className="space-y-6 xl:col-span-2">
               <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h2 className="text-lg font-semibold text-slate-900">

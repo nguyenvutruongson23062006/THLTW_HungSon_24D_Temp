@@ -1,3 +1,5 @@
+import { layTokenDangNhap } from "./apiClient";
+
 const API_URL = (
   process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api"
 ).replace(/\/$/, "");
@@ -38,12 +40,10 @@ export async function layDanhSachDonHang(
   boLoc: BoLocDonHang,
   signal?: AbortSignal,
 ): Promise<DanhSachDonHangResponse> {
-  const token = sessionStorage.getItem("admin_token")?.trim();
+  const token = layTokenDangNhap()?.trim();
 
   if (!token) {
-    throw new Error(
-      "Chưa có token Admin. Kiểm tra admin_token trong Session Storage.",
-    );
+    throw new Error("Vui lòng đăng nhập tài khoản quản trị để xem đơn hàng.");
   }
 
   const params = new URLSearchParams({
@@ -72,9 +72,7 @@ export async function layDanhSachDonHang(
   );
 
   if (response.status === 401) {
-    throw new Error(
-      "Token không hợp lệ hoặc đã hết hiệu lực. Hãy lấy lại token Admin.",
-    );
+    throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
   }
 
   if (response.status === 403) {
@@ -122,10 +120,10 @@ export async function layChiTietDonHang(
     throw new Error("Mã đơn hàng không hợp lệ.");
   }
 
-  const token = sessionStorage.getItem("admin_token")?.trim();
+  const token = layTokenDangNhap()?.trim();
 
   if (!token) {
-    throw new Error("Chưa có token Admin trong Session Storage.");
+    throw new Error("Vui lòng đăng nhập tài khoản quản trị.");
   }
 
   const response = await fetch(`${API_URL}/admin/don-hang/${maDonHang}`, {
@@ -138,7 +136,7 @@ export async function layChiTietDonHang(
   });
 
   if (response.status === 401) {
-    throw new Error("Token không hợp lệ hoặc đã hết hiệu lực.");
+    throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
   }
 
   if (response.status === 403) {
@@ -177,10 +175,10 @@ export async function capNhatTrangThaiDonHang(
   trangThaiHienTai: string,
   trangThaiMoi: string,
 ): Promise<KetQuaCapNhatTrangThai> {
-  const token = sessionStorage.getItem("admin_token")?.trim();
+  const token = layTokenDangNhap()?.trim();
 
   if (!token) {
-    throw new Error("Chưa có token Admin.");
+    throw new Error("Vui lòng đăng nhập tài khoản quản trị.");
   }
 
   const response = await fetch(

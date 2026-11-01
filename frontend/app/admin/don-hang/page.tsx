@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type SyntheticEvent } from "react";
 import {
   layDanhSachDonHang,
   type DanhSachDonHangResponse,
@@ -10,6 +10,8 @@ import {
 const CAC_TRANG_THAI: Record<string, string> = {
   cho_xac_nhan: "Chờ xác nhận",
   da_xac_nhan: "Đã xác nhận",
+  dang_xu_ly: "Đang xử lý",
+  da_giao: "Đã giao",
   dang_giao: "Đang giao",
   hoan_tat: "Hoàn tất",
   da_huy: "Đã hủy",
@@ -106,7 +108,7 @@ export default function QuanLyDonHang() {
     return () => controller.abort();
   }, [boLoc, lanTai]);
 
-  function timKiem(event: FormEvent<HTMLFormElement>) {
+  function timKiem(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setBoLoc((cu) => ({

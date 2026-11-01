@@ -1,3 +1,6 @@
+import QuanLyKho from "@/components/admin/QuanLyKho";
+import { notFound } from "next/navigation";
+
 type ChiTietPhieuXuatProps = {
   params: Promise<{ maPhieuXuat: string }>;
 };
@@ -6,11 +9,11 @@ export default async function ChiTietPhieuXuat({
   params,
 }: ChiTietPhieuXuatProps) {
   const { maPhieuXuat } = await params;
+  if (
+    !/^[1-9]\d*$/.test(maPhieuXuat) ||
+    !Number.isSafeInteger(Number(maPhieuXuat))
+  )
+    notFound();
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold">Chi tiết phiếu xuất</h1>
-      <p className="mt-2 text-slate-500">Mã phiếu xuất: {maPhieuXuat}</p>
-    </div>
-  );
+  return <QuanLyKho loai="xuat" ma={Number(maPhieuXuat)} />;
 }

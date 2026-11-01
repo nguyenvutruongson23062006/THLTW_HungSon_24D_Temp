@@ -28,10 +28,13 @@ export async function dangXuat() {
 export function luuPhienDangNhap(ketQua: KetQuaDangNhap) {
   localStorage.setItem("auth_token", ketQua.token);
   localStorage.setItem("nguoi_dung", JSON.stringify(ketQua.user));
+  if (ketQua.user.vai_tro === "quan_tri_vien")
+    sessionStorage.setItem("admin_token", ketQua.token);
 }
 
 export function xoaPhienDangNhap() {
   localStorage.removeItem("auth_token");
   localStorage.removeItem("token");
   localStorage.removeItem("nguoi_dung");
+  sessionStorage.removeItem("admin_token");
 }
