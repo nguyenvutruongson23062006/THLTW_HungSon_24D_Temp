@@ -1,3 +1,6 @@
+import TrangQuanLyDuLieu from "@/components/admin/TrangQuanLyDuLieu";
+import { CAU_HINH_DU_LIEU } from "@/lib/admin/cauHinhDuLieu";
+
 export default function QuanLyThanhDieuHuong() {
-  return <h1 className="text-2xl font-bold">Quản lý thanh điều hướng</h1>;
+  return <TrangQuanLyDuLieu cauHinh={CAU_HINH_DU_LIEU["thanh-dieu-huong"]} />;
 }
