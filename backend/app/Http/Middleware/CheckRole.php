@@ -25,6 +25,10 @@ class CheckRole
             $vaiTro = ['quan_tri_vien'];
         }
 
+        if ($nguoiDung->trang_thai !== 'hoat_dong') {
+            return response()->json(['message' => 'Tài khoản đang bị khóa hoặc tạm ngưng.'], 403);
+        }
+
         if (!in_array($nguoiDung->vai_tro, $vaiTro, true)) {
             return response()->json([
                 'message' => 'Bạn không có quyền thực hiện thao tác này.'
