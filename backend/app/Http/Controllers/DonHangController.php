@@ -126,7 +126,36 @@ class DonHangController extends Controller
             ],
         ]);
     }
-        public function updateStatus(Request $request, int $maDonHang): JsonResponse
+    public function updatePayment(Request $request, int $maDonHang): JsonResponse
+    {
+        $data = $request->validate([
+            'trang_thai_thanh_toan' => ['required', Rule::in(['da_thanh_toan', 'da_hoan_tien'])],
+            'trang_thai_hien_tai' => 'required|string',
+            'ma_giao_dich' => 'nullable|string|max:255',
+        ]);
+
+        return DB::transaction(function () use ($data, $maDonHang) {
+            $don = DonHang::lockForUpdate()->findOrFail($maDonHang);
+            if ($don->trang_thai_thanh_toan !== $data['trang_thai_hien_tai']) {
+                return response()->json(['message' => 'Thanh toán đã thay đổi. Hãy tải lại đơn hàng.'], 409);
+            }
+            $hopLe = ($don->trang_thai_thanh_toan === 'chua_thanh_toan' && $data['trang_thai_thanh_toan'] === 'da_thanh_toan' && $don->trang_thai !== 'da_huy')
+                || ($don->trang_thai_thanh_toan === 'da_thanh_toan' && $data['trang_thai_thanh_toan'] === 'da_hoan_tien');
+            if (!$hopLe) {
+                return response()->json(['message' => 'Không được chuyển sang trạng thái thanh toán này.'], 422);
+            }
+            $don->trang_thai_thanh_toan = $data['trang_thai_thanh_toan'];
+            $don->ma_giao_dich = $data['ma_giao_dich'] ?? $don->ma_giao_dich;
+            $don->save();
+
+            return response()->json(['message' => 'Đã ghi nhận thanh toán.', 'data' => [
+                'trang_thai_thanh_toan' => $don->trang_thai_thanh_toan,
+                'ma_giao_dich' => $don->ma_giao_dich, 'ngay_cap_nhat' => $don->ngay_cap_nhat,
+            ]]);
+        });
+    }
+
+    public function updateStatus(Request $request, int $maDonHang): JsonResponse
     {
         $duLieu = $request->validate([
             'trang_thai' => [
@@ -158,6 +187,7 @@ class DonHangController extends Controller
             $cacBuocChoPhep = [
                 'cho_xac_nhan' => ['da_xac_nhan', 'da_huy'],
                 'da_xac_nhan' => ['dang_giao', 'da_huy'],
+                'dang_xu_ly' => ['dang_giao', 'da_huy'],
                 'dang_giao' => ['hoan_tat'],
                 'hoan_tat' => [],
                 'da_huy' => [],
@@ -175,10 +205,10 @@ class DonHangController extends Controller
                 ], 422);
             }
 
-            // Chưa có luồng hoàn tiền nên không hủy đơn đã thu tiền.
+            // Chỉ hủy đơn đã thu tiền sau khi ghi nhận hoàn tiền.
             if (
                 $trangThaiMoi === 'da_huy'
-                && $donHang->trang_thai_thanh_toan !== 'chua_thanh_toan'
+                && $donHang->trang_thai_thanh_toan === 'da_thanh_toan'
             ) {
                 return response()->json([
                     'message' => 'Đơn này cần xử lý thanh toán/hoàn tiền trước khi hủy.',
