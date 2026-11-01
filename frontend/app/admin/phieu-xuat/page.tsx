@@ -1,3 +1,5 @@
+import QuanLyKho from "@/components/admin/QuanLyKho";
+
 export default function QuanLyPhieuXuat() {
-  return <h1 className="text-2xl font-bold">Quản lý phiếu xuất</h1>;
+  return <QuanLyKho loai="xuat" />;
 }
