@@ -83,7 +83,7 @@ export default function TrangQuanLyDuLieu({
     setLoi("");
     setLanTai((v) => v + 1);
   }
-  const loc = duLieu.filter(
+  const loc = [...duLieu].sort((a, b) => Number(b[c.khoa]) - Number(a[c.khoa])).filter(
     (dong) =>
       Object.entries(dong)
         .filter(([ten]) => !ten.includes("mat_khau"))
@@ -208,11 +208,12 @@ export default function TrangQuanLyDuLieu({
           {c.trangThai.find((v) => v.giaTri === value)?.nhan ?? String(value)}
         </span>
       );
-    if (cot.ten === "vai_tro")
+    if (c.truong.find((v) => v.ten === cot.ten)?.luaChon)
       return (
         c.truong
-          .find((v) => v.ten === "vai_tro")
-          ?.luaChon?.find((v) => v.giaTri === value)?.nhan ?? String(value)
+          .find((v) => v.ten === cot.ten)
+          ?.luaChon?.find((v) => v.giaTri === String(value))?.nhan ??
+        String(value)
       );
     return value === null || value === undefined || value === ""
       ? "—"
