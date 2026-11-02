@@ -11,6 +11,9 @@ type CaiDat = {
   so_dien_thoai: string;
   dia_chi: string;
   nguong_ton_kho: number;
+  ngan_hang_bin: string;
+  tai_khoan_nhan: string;
+  chu_tai_khoan: string;
 };
 const input =
   "mt-1 block w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-800 outline-none focus:border-sky-500";
@@ -139,6 +142,9 @@ export default function CaiDatQuanTri() {
                 { ten: "dia_chi_email", nhan: "Email liên hệ", type: "email" },
                 { ten: "so_dien_thoai", nhan: "Số điện thoại", type: "text" },
                 { ten: "dia_chi", nhan: "Địa chỉ", type: "text" },
+                { ten: "ngan_hang_bin", nhan: "Mã BIN ngân hàng nhận (6 số, ví dụ MB: 970422, Vietcombank: 970436)", type: "text" },
+                { ten: "tai_khoan_nhan", nhan: "Số tài khoản nhận chuyển khoản", type: "text" },
+                { ten: "chu_tai_khoan", nhan: "Tên chủ tài khoản nhận tiền", type: "text" },
               ] as const
             ).map((f) => (
               <label key={f.ten} className="block text-sm">
