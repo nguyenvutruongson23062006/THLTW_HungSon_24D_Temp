@@ -1,11 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { useTaiKhoan } from "@/lib/shop/useTaiKhoan";
+import { dangXuatShop } from "@/lib/shop/api";
 
 export default function Navbar() {
+  const { user } = useTaiKhoan();
   return (
-    <nav
-      aria-label="Điều hướng cửa hàng"
-      className="bg-slate-950 text-white"
-    >
+    <nav aria-label="Điều hướng cửa hàng" className="bg-slate-950 text-white">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-6 py-4 sm:flex-row sm:justify-between">
         <Link
           href="/"
@@ -36,12 +38,37 @@ export default function Navbar() {
             Giỏ hàng
           </Link>
 
-          <Link
-            href="/login"
-            className="inline-flex min-h-11 items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400"
-          >
-            Đăng nhập
-          </Link>
+          {user ? (
+            <>
+              <Link
+                href="/don-hang"
+                className="text-slate-300 hover:text-blue-400"
+              >
+                Đơn hàng
+              </Link>
+              <Link
+                href="/tai-khoan"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-white"
+              >
+                {user.ho_ten}
+              </Link>
+              <button
+                className="text-slate-300 hover:text-blue-400"
+                onClick={() => {
+                  void dangXuatShop().catch(() => undefined);
+                }}
+              >
+                Đăng xuất
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="inline-flex min-h-11 items-center rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400"
+            >
+              Đăng nhập
+            </Link>
+          )}
         </div>
       </div>
       <div
