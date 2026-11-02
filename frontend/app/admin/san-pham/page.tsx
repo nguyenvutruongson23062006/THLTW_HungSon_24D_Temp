@@ -1,4 +1,5 @@
 "use client";
+import { usePhanTrangDanhSach } from "@/components/admin/PhanTrangDanhSach";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -65,6 +66,7 @@ function AnhDaiDienSanPham({
 }
 
 export default function QuanLySanPham() {
+  const phanTrang = usePhanTrangDanhSach();
   const [danhSachSanPham, setDanhSachSanPham] = useState<
     SanPham[]
   >([]);
@@ -97,7 +99,7 @@ export default function QuanLySanPham() {
     taiDanhSach();
   }, []);
 
-  const danhSachHienThi = danhSachSanPham.filter((sanPham) => {
+  const danhSachHienThi = [...danhSachSanPham].sort((a, b) => b.ma_san_pham - a.ma_san_pham).filter((sanPham) => {
     const tuKhoaThuong = tuKhoa.toLowerCase();
 
     const noiDungTimKiem = [
@@ -265,7 +267,7 @@ export default function QuanLySanPham() {
               </thead>
 
               <tbody className="divide-y divide-slate-100">
-                {danhSachHienThi.map((sanPham) => {
+                {phanTrang.cat(danhSachHienThi).map((sanPham) => {
                   const trangThai = layTrangThai(
                     sanPham.trang_thai,
                   );
@@ -357,6 +359,7 @@ export default function QuanLySanPham() {
                 })}
               </tbody>
             </table>
+{phanTrang.thanh(danhSachHienThi.length)}
 
             {danhSachHienThi.length === 0 && (
               <div className="p-8 text-center text-sm text-slate-500">
