@@ -2,10 +2,21 @@
 
 namespace App\Http\Requests;
 
+use App\Support\ThongBaoKiemTra;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DangKyRequest extends FormRequest
 {
+    public function messages(): array
+    {
+        return ThongBaoKiemTra::NOI_DUNG;
+    }
+
+    public function attributes(): array
+    {
+        return ThongBaoKiemTra::TEN_TRUONG;
+    }
+
     public function authorize(): bool
     {
         return true;
@@ -15,11 +26,11 @@ class DangKyRequest extends FormRequest
     {
         $data = $this->all();
 
-        if (isset($data['xac_nhan_mat_khau']) && !isset($data['mat_khau_confirmation'])) {
+        if (isset($data['xac_nhan_mat_khau']) && ! isset($data['mat_khau_confirmation'])) {
             $data['mat_khau_confirmation'] = $data['xac_nhan_mat_khau'];
         }
 
-        if (isset($data['nhap_lai_mat_khau']) && !isset($data['mat_khau_confirmation'])) {
+        if (isset($data['nhap_lai_mat_khau']) && ! isset($data['mat_khau_confirmation'])) {
             $data['mat_khau_confirmation'] = $data['nhap_lai_mat_khau'];
         }
 
