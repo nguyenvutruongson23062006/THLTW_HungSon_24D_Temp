@@ -11,6 +11,19 @@ export default function BoCucTrang({
 }>) {
   const duongDanHienTai = usePathname();
   const dangOTrangQuanTri = duongDanHienTai.startsWith("/admin");
+  const trangMuaHang = [
+    "/login",
+    "/dang-ky",
+    "/quen-mat-khau",
+    "/dat-lai-mat-khau",
+    "/tai-khoan",
+    "/don-hang",
+    "/order",
+    "/cart",
+  ].some(
+    (path) =>
+      duongDanHienTai === path || duongDanHienTai.startsWith(path + "/"),
+  );
 
   if (dangOTrangQuanTri) {
     return children;
@@ -19,7 +32,9 @@ export default function BoCucTrang({
   return (
     <>
       <Navbar />
-      <div className="flex-1">{children}</div>
+      <div className={`flex-1 ${trangMuaHang ? "bg-slate-900" : ""}`}>
+        {children}
+      </div>
       <Footer />
     </>
   );
