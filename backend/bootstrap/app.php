@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
             $middleware->alias([
             'kiem_tra_vai_tro' => CheckRole::class,
+            'tai_khoan_hoat_dong' => \App\Http\Middleware\TaiKhoanHoatDong::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
