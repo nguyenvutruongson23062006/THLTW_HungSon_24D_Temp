@@ -134,6 +134,7 @@ export default function QuanLyDonHang() {
           <p className="text-sm font-medium text-sky-600">Quản trị</p>
 
           <h1 className="mt-1 text-3xl font-bold text-slate-900">
+            <Link href="/admin/don-hang/cho-thanh-toan" className="mb-3 block text-sm font-normal text-blue-600">Chờ đối soát chuyển khoản →</Link>
             Quản lý đơn hàng
           </h1>
 
