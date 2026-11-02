@@ -12,6 +12,17 @@ use App\Http\Controllers\NoiDungQuanTriController;
 use App\Http\Controllers\KhoQuanTriController;
 use App\Http\Controllers\ThongKeQuanTriController;
 use App\Http\Controllers\CaiDatQuanTriController;
+use App\Http\Controllers\MatKhauController;
+use App\Http\Controllers\DatHangController;
+use App\Http\Controllers\KhuyenMaiController;
+use App\Http\Controllers\ThanhToanController;
+
+Route::get('/thanh-toan/phuong-thuc', [ThanhToanController::class, 'phuongThuc']);
+Route::post('/thanh-toan/tao', [ThanhToanController::class, 'tao'])->middleware('throttle:20,1,tao-thanh-toan');
+Route::post('/thanh-toan/trang-thai', [ThanhToanController::class, 'trangThai'])->middleware('throttle:60,1,trang-thai-thanh-toan');
+Route::post('/thanh-toan/chuyen-khoan', [ThanhToanController::class, 'chuyenKhoan'])->middleware('throttle:60,1,chuyen-khoan');
+Route::get('/thanh-toan/vnpay/ipn', [ThanhToanController::class, 'ipn']);
+Route::get('/thanh-toan/vnpay/return', [ThanhToanController::class, 'quayVe']);
 
 // ==================== AUTH ====================
 
@@ -20,10 +31,20 @@ Route::post('/register', [AuthController::class, 'register']);
 
 // Đăng nhập
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/quen-mat-khau', [MatKhauController::class, 'yeuCau'])->middleware('throttle:5,1,quen-mat-khau');
+Route::post('/dat-lai-mat-khau', [MatKhauController::class, 'datLai'])->middleware('throttle:10,1,dat-lai-mat-khau');
+
+Route::post('/cua-hang/bao-gia', [DatHangController::class, 'baoGia'])->middleware('throttle:60,1,bao-gia');
+Route::post('/cua-hang/dat-hang', [DatHangController::class, 'store'])->middleware('throttle:20,1,dat-hang');
+Route::prefix('cua-hang/don-hang')->middleware(['auth:sanctum', 'tai_khoan_hoat_dong'])->group(function () {
+    Route::get('/', [DatHangController::class, 'index']);
+    Route::get('/{ma}', [DatHangController::class, 'show'])->whereNumber('ma');
+    Route::patch('/{ma}/huy', [DatHangController::class, 'huy'])->whereNumber('ma');
+});
 
 // Lấy thông tin người đang đăng nhập
 Route::get('/me', [AuthController::class, 'me'])
-    ->middleware('auth:sanctum');
+    ->middleware(['auth:sanctum', 'tai_khoan_hoat_dong']);
 
 // Danh sách người dùng (chỉ dành cho quản trị viên)
 Route::get('/admin/members', [UserController::class, 'danhSachNguoiDung'])
@@ -33,10 +54,10 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth:sanctum');
 
 Route::put('/profile', [UserController::class, 'updateProfile'])
-    ->middleware('auth:sanctum');
+    ->middleware(['auth:sanctum', 'tai_khoan_hoat_dong']);
 
 Route::post('/change-password', [UserController::class, 'changePassword'])
-    ->middleware('auth:sanctum');       
+    ->middleware(['auth:sanctum', 'tai_khoan_hoat_dong']);
 
 // ==================== DANH MỤC ====================
 
@@ -94,6 +115,12 @@ Route::delete('/sanpham/{maSanPham}/xoa-vinh-vien', [SanPhamController::class, '
 Route::prefix('admin')
     ->middleware(['auth:sanctum', 'kiem_tra_vai_tro'])
     ->group(function () {
+        Route::get('/khuyen-mai', [KhuyenMaiController::class, 'index']);
+        Route::post('/khuyen-mai', [KhuyenMaiController::class, 'store']);
+        Route::put('/khuyen-mai/{ma}', [KhuyenMaiController::class, 'update'])->whereNumber('ma');
+        Route::delete('/khuyen-mai/{ma}', [KhuyenMaiController::class, 'destroy'])->whereNumber('ma');
+        Route::patch('/khuyen-mai/{ma}/khoi-phuc', [KhuyenMaiController::class, 'khoiPhuc'])->whereNumber('ma');
+        Route::delete('/khuyen-mai/{ma}/xoa-vinh-vien', [KhuyenMaiController::class, 'xoaVinhVien'])->whereNumber('ma');
         Route::post('/members', [UserController::class, 'store']);
         Route::put('/members/{maNguoiDung}', [UserController::class, 'update'])->whereNumber('maNguoiDung');
         Route::delete('/members/{maNguoiDung}', [UserController::class, 'destroy'])->whereNumber('maNguoiDung');
