@@ -49,6 +49,12 @@ export default function Footer() {
             <p className="mt-5 text-sm font-medium text-slate-200">
               Đam mê hai bánh. Kết nối mọi hành trình.
             </p>
+            <Link
+              href="/admin"
+              className="mt-6 inline-flex min-h-11 items-center rounded-sm text-sm font-semibold text-blue-400 transition-colors hover:text-blue-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400"
+            >
+              Vào admin
+            </Link>
           </div>
 
           <div className="min-w-0 lg:col-span-8">

@@ -128,8 +128,8 @@ class UserController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'mat_khau_cu' => ['required'],
-            'mat_khau_moi' => ['required', 'min:6', 'confirmed'],
+            'mat_khau_cu' => ['required', 'string'],
+            'mat_khau_moi' => ['required', 'string', 'min:6', 'max:255', 'confirmed'],
         ]);
 
         if (!password_verify($request->mat_khau_cu, $user->mat_khau)) {
@@ -140,7 +140,11 @@ class UserController extends Controller
 
         $user->update([
             'mat_khau' => $request->mat_khau_moi,
+            'ma_dat_lai_mat_khau' => null,
+            'thoi_gian_dat_lai_mat_khau' => null,
         ]);
+        $tokenHienTai = $user->currentAccessToken();
+        $user->tokens()->when($tokenHienTai instanceof \Laravel\Sanctum\PersonalAccessToken, fn ($q) => $q->where('id', '!=', $tokenHienTai->getKey()))->delete();
 
         return response()->json([
             'message' => 'Đổi mật khẩu thành công'

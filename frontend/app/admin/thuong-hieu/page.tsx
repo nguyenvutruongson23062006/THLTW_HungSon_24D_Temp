@@ -1,4 +1,5 @@
 "use client";
+import { usePhanTrangDanhSach } from "@/components/admin/PhanTrangDanhSach";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -68,6 +69,7 @@ function taoDuongDan(tenThuongHieu: string) {
 }
 
 export default function QuanLyThuongHieu() {
+  const phanTrang = usePhanTrangDanhSach();
   const [danhSachThuongHieu, setDanhSachThuongHieu] = useState<
     ThuongHieu[]
   >([]);
@@ -101,7 +103,7 @@ export default function QuanLyThuongHieu() {
     taiDanhSach();
   }, []);
 
-  const thuongHieuHienThi = danhSachThuongHieu.filter((thuongHieu) => {
+  const thuongHieuHienThi = [...danhSachThuongHieu].sort((a, b) => b.ma_thuong_hieu - a.ma_thuong_hieu).filter((thuongHieu) => {
     const khopTuKhoa = `${thuongHieu.ten_thuong_hieu} ${thuongHieu.duong_dan}`
       .toLowerCase()
       .includes(tuKhoa.toLowerCase());
@@ -340,7 +342,7 @@ export default function QuanLyThuongHieu() {
               </thead>
 
               <tbody className="divide-y divide-slate-100">
-                {thuongHieuHienThi.map((thuongHieu) => (
+                {phanTrang.cat(thuongHieuHienThi).map((thuongHieu) => (
                   <tr
                     key={thuongHieu.ma_thuong_hieu}
                     className="text-slate-700"
@@ -409,6 +411,7 @@ export default function QuanLyThuongHieu() {
                 ))}
               </tbody>
             </table>
+{phanTrang.thanh(thuongHieuHienThi.length)}
 
             {thuongHieuHienThi.length === 0 && (
               <p className="p-8 text-center text-sm text-slate-500">

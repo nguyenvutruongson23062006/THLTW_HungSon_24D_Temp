@@ -254,6 +254,11 @@ class SanPhamController extends Controller
         $sanPham = SanPham::onlyTrashed()
             ->findOrFail($maSanPham);
 
+        foreach (['chi_tiet_don_hang', 'chi_tiet_phieu_nhap', 'chi_tiet_phieu_xuat'] as $bang) {
+            if (\Illuminate\Support\Facades\DB::table($bang)->where('ma_san_pham', $maSanPham)->exists()) {
+                return response()->json(['message' => 'Sản phẩm có trong đơn hàng hoặc phiếu kho. Hãy giữ trong thùng rác để bảo toàn lịch sử.'], 422);
+            }
+        }
         $sanPham->forceDelete();
 
         return response()->json([

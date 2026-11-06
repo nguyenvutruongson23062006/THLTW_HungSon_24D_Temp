@@ -30,6 +30,9 @@ const PHUONG_THUC: Record<string, string> = {
   tien_mat: "Tiền mặt",
   chuyen_khoan: "Chuyển khoản",
   tra_gop: "Trả góp",
+  vnpay_qr: "VNPAY-QR",
+  vnpay_atm: "Thẻ ATM / ngân hàng nội địa",
+  vnpay_the: "Thẻ quốc tế",
 };
 
 const CHUYEN_TRANG_THAI: Record<string, string[]> = {
@@ -294,11 +297,41 @@ export default function TrangChiTietDonHang() {
             )}
           </section>
           <div className="grid gap-6 xl:grid-cols-3">
+            {!!donHang.lich_su?.length && (
+              <section className="rounded-xl border border-slate-200 bg-white p-5 xl:col-span-3">
+                <h2 className="text-lg font-semibold">Lịch sử trạng thái</h2>
+                <ol className="mt-4 space-y-3">
+                  {donHang.lich_su.map((l, i) => (
+                    <li
+                      key={i}
+                      className="border-l-2 border-sky-500 pl-3 text-sm"
+                    >
+                      <span className="font-semibold">
+                        {TRANG_THAI[l.trang_thai_moi] ?? l.trang_thai_moi}
+                      </span>
+                      <p className="mt-1 text-slate-500">
+                        {ngay(l.ngay_tao)} · {l.ghi_chu}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
             <div className="xl:col-span-3">
+                {!!donHang.giao_dich_online?.length && <section className="mb-5 space-y-3 rounded-xl border border-slate-200 bg-white p-5">
+                  <h2 className="text-lg font-semibold">Lịch sử thanh toán VNPay</h2>
+                  {donHang.giao_dich_online.map((gd) => <div key={gd.ma_tham_chieu} className="rounded-lg border border-slate-200 p-3 text-sm">
+                    <p className="break-all">Tham chiếu: {gd.ma_tham_chieu}</p>
+                    <p>{Number(gd.so_tien).toLocaleString("vi-VN")}đ · {({ dang_cho: "Đang chờ", thanh_cong: "Thành công", that_bai: "Thất bại" } as Record<string, string>)[gd.trang_thai] ?? gd.trang_thai}</p>
+                    <p>Mã VNPay: {gd.ma_giao_dich_cong ?? "—"} · Mã phản hồi: {gd.ma_phan_hoi ?? "—"}</p>
+                    {!!gd.can_doi_soat && <p className="mt-2 font-semibold text-rose-700">CẦN ĐỐI SOÁT: tiền về sau hủy đơn hoặc có giao dịch trùng. Liên hệ VNPay để xử lý / hoàn tiền.</p>}
+                  </div>)}
+                </section>}
               <GhiNhanThanhToan
                 ma={donHang.ma_don_hang}
                 trangThai={donHang.trang_thai_thanh_toan}
                 trangThaiDon={donHang.trang_thai}
+                phuongThuc={donHang.phuong_thuc_thanh_toan}
                 onCapNhat={(data) =>
                   setDonHang((cu) => (cu ? { ...cu, ...data } : cu))
                 }

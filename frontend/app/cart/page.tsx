@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { getProducts } from "@/lib/products";
+import ChonPhuongThucThanhToan from "@/components/shop/ChonPhuongThucThanhToan";
 import {
   type CartItem,
   getCart,
@@ -11,15 +13,36 @@ import {
   subscribeCart,
   initializeCart,
   updateCartQuantity,
+  dongBoGioHang,
 } from "@/lib/cart";
 
 const emptyCart: CartItem[] = [];
 
 export default function CartPage() {
   const cart = useSyncExternalStore(subscribeCart, getCart, () => emptyCart);
+  const [thongBao, setThongBao] = useState("");
+  const [phuongThuc, setPhuongThuc] = useState("tien_mat");
+  const [boChon, setBoChon] = useState<number[]>([]);
 
   useEffect(() => {
+    let huy = false;
     initializeCart();
+    getProducts()
+      .then((products) => {
+        if (!huy && dongBoGioHang(products))
+          setThongBao(
+            "Giỏ hàng đã cập nhật theo giá và tồn kho hiện tại. Sản phẩm hết hàng hoặc ngừng bán đã được bỏ khỏi giỏ.",
+          );
+      })
+      .catch(() => {
+        if (!huy)
+          setThongBao(
+            "Chưa thể cập nhật giỏ từ server. Giá và tồn kho sẽ được kiểm tra lại khi đặt hàng.",
+          );
+      });
+    return () => {
+      huy = true;
+    };
   }, []);
 
   function handleRemove(id: number) {
@@ -47,7 +70,8 @@ export default function CartPage() {
     updateCartQuantity(item.id, item.quantity + 1);
   }
 
-  const total = cart.reduce(
+  const daChon = cart.filter((d) => !boChon.includes(d.id));
+  const total = daChon.reduce(
     (sum, item) => sum + item.giaKhuyenMai * item.quantity,
     0,
   );
@@ -55,6 +79,14 @@ export default function CartPage() {
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
       <h1 className="mb-8 text-3xl font-bold text-white">Giỏ hàng</h1>
+      {thongBao && (
+        <p
+          role="status"
+          className="mb-5 rounded-lg border border-blue-800 bg-blue-950 p-4 text-sm text-blue-100"
+        >
+          {thongBao}
+        </p>
+      )}
 
       {cart.length === 0 ? (
         <div className="rounded-2xl bg-white p-8 text-center">
@@ -70,6 +102,7 @@ export default function CartPage() {
       ) : (
         <>
           <div className="space-y-5">
+            <label className="flex items-center gap-3 text-white"><input type="checkbox" checked={daChon.length === cart.length} onChange={(e) => setBoChon(e.target.checked ? [] : cart.map((d) => d.id))} />Chọn tất cả ({daChon.length}/{cart.length} sản phẩm)</label>
             {cart.map((item) => {
               const stock = item.tonKho;
 
@@ -80,6 +113,7 @@ export default function CartPage() {
                   key={item.id}
                   className="flex flex-col gap-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:flex-row md:items-center"
                 >
+                  <label className="flex items-center gap-2 text-sm text-slate-800"><input aria-label={`Chọn ${item.ten}`} type="checkbox" checked={!boChon.includes(item.id)} onChange={(e) => setBoChon((cu) => e.target.checked ? cu.filter((id) => id !== item.id) : [...cu, item.id])} />Chọn mua</label>
                   <Image
                     src={item.image}
                     alt={item.ten}
@@ -176,6 +210,7 @@ export default function CartPage() {
           </div>
 
           <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6">
+            <div className="mb-6 text-slate-900"><ChonPhuongThucThanhToan giaTri={phuongThuc} onChon={setPhuongThuc} /></div>
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-lg font-semibold text-gray-700">Tổng tiền</p>
@@ -195,7 +230,9 @@ export default function CartPage() {
                 </button>
 
                 <Link
-                  href="/order"
+                  href={`/order?phuong_thuc=${phuongThuc}&chon=${daChon.map((d) => d.id).join(',')}`}
+                  aria-disabled={!daChon.length}
+                  onClick={(e) => { if (!daChon.length) { e.preventDefault(); setThongBao('Vui lòng chọn ít nhất một sản phẩm để thanh toán.'); } }}
                   className="rounded-lg bg-blue-600 px-6 py-3 text-center font-semibold text-white transition hover:bg-blue-700"
                 >
                   Đặt hàng

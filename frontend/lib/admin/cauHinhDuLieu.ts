@@ -2,7 +2,14 @@ export type LuaChon = { giaTri: string; nhan: string };
 export type TruongDuLieu = {
   ten: string;
   nhan: string;
-  kieu?: "text" | "textarea" | "email" | "number" | "select" | "password";
+  kieu?:
+    | "text"
+    | "textarea"
+    | "email"
+    | "number"
+    | "select"
+    | "password"
+    | "date";
   batBuoc?: boolean;
   luaChon?: LuaChon[];
   laMucCha?: boolean;
@@ -45,6 +52,81 @@ const slug: TruongDuLieu = {
 };
 
 export const CAU_HINH_DU_LIEU: Record<string, CauHinhDuLieu> = {
+  "khuyen-mai": {
+    tieuDe: "Quản lý khuyến mãi",
+    moTa: "Mã giảm giá, thời gian áp dụng và điều kiện sử dụng. Ngày hiệu lực tính theo giờ Việt Nam.",
+    endpoint: "/admin/khuyen-mai",
+    khoa: "ma_khuyen_mai",
+    cotTen: "ten_khuyen_mai",
+    trangThai: hoatDong,
+    truong: [
+      {
+        ten: "ma_giam_gia",
+        nhan: "Mã giảm giá (3–50 ký tự: chữ, số, dấu _ hoặc -)",
+        batBuoc: true,
+      },
+      { ten: "ten_khuyen_mai", nhan: "Tên chương trình", batBuoc: true },
+      {
+        ten: "loai_giam",
+        nhan: "Hình thức giảm",
+        kieu: "select",
+        luaChon: [
+          { giaTri: "phan_tram", nhan: "Phần trăm" },
+          { giaTri: "so_tien", nhan: "Số tiền (VNĐ)" },
+        ],
+      },
+      {
+        ten: "gia_tri_giam",
+        nhan: "Giá trị giảm (phần trăm: 1–100, số tiền: VNĐ)",
+        kieu: "number",
+        batBuoc: true,
+      },
+      {
+        ten: "don_toi_thieu",
+        nhan: "Giá trị đơn tối thiểu (VNĐ)",
+        kieu: "number",
+        batBuoc: true,
+      },
+      {
+        ten: "giam_toi_da",
+        nhan: "Giảm tối đa (VNĐ, 0: không giới hạn)",
+        kieu: "number",
+      },
+      {
+        ten: "ngay_bat_dau",
+        nhan: "Ngày bắt đầu (để trống: áp dụng ngay)",
+        kieu: "date",
+      },
+      {
+        ten: "ngay_ket_thuc",
+        nhan: "Ngày kết thúc (để trống: không hết hạn)",
+        kieu: "date",
+      },
+      {
+        ten: "gioi_han_su_dung",
+        nhan: "Giới hạn lượt sử dụng toàn chương trình (0: không giới hạn)",
+        kieu: "number",
+      },
+      {
+        ten: "chi_thanh_vien",
+        nhan: "Đối tượng áp dụng",
+        kieu: "select",
+        luaChon: [
+          { giaTri: "0", nhan: "Khách và thành viên" },
+          { giaTri: "1", nhan: "Chỉ thành viên đã đăng nhập" },
+        ],
+      },
+    ],
+    cot: [
+      { ten: "ma_giam_gia", nhan: "Mã" },
+      { ten: "ten_khuyen_mai", nhan: "Chương trình" },
+      { ten: "loai_giam", nhan: "Hình thức" },
+      { ten: "gia_tri_giam", nhan: "Giá trị giảm" },
+      { ten: "ngay_ket_thuc", nhan: "Hết hạn", kieu: "ngay" },
+      { ten: "da_su_dung", nhan: "Đã dùng" },
+      { ten: "trang_thai", nhan: "Trạng thái", kieu: "trang_thai" },
+    ],
+  },
   "bai-viet": {
     tieuDe: "Quản lý bài viết",
     moTa: "Soạn bài viết, quản lý hiển thị và ảnh đại diện.",

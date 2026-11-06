@@ -101,6 +101,14 @@ export interface ChiTietSanPhamDonHang {
 }
 
 export interface ChiTietDonHang extends DonHang {
+  giao_dich_online?: {
+    ma_tham_chieu: string;
+    so_tien: string | number;
+    trang_thai: string;
+    ma_giao_dich_cong: string | null;
+    ma_phan_hoi: string | null;
+    can_doi_soat: boolean | number;
+  }[];
   ma_nguoi_dung: number | null;
   dia_chi_email: string | null;
   dia_chi_giao_hang: string;
@@ -110,6 +118,13 @@ export interface ChiTietDonHang extends DonHang {
   giam_gia: string | number;
   ngay_cap_nhat: string | null;
   chi_tiet_don_hangs: ChiTietSanPhamDonHang[];
+  ma_giam_gia?: string | null;
+  lich_su?: {
+    trang_thai_cu: string | null;
+    trang_thai_moi: string;
+    ghi_chu: string;
+    ngay_tao: string;
+  }[];
 }
 
 export async function layChiTietDonHang(

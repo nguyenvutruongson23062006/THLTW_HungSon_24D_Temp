@@ -13,11 +13,13 @@ export default function GhiNhanThanhToan({
   ma,
   trangThai,
   trangThaiDon,
+  phuongThuc,
   onCapNhat,
 }: {
   ma: number;
   trangThai: string;
   trangThaiDon: string;
+  phuongThuc?: string;
   onCapNhat: (data: KetQua) => void;
 }) {
   const [maGiaoDich, setMaGiaoDich] = useState("");
@@ -70,10 +72,9 @@ export default function GhiNhanThanhToan({
     <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold">Ghi nhận giao dịch</h2>
       <p className="mt-2 text-sm text-slate-500">
-        Cập nhật sau khi đã thu hoặc hoàn tiền thực tế. Thao tác này lưu thông
-        tin đối soát của cửa hàng.
+        {phuongThuc?.startsWith("vnpay_") ? "VNPay tự động xác nhận khi nhận thông báo hợp lệ từ cổng. Hoàn tiền online cần xử lý, đối soát qua VNPay; trang này không thực hiện hoàn tiền." : "Cập nhật sau khi đã thu hoặc hoàn tiền thực tế. Thao tác này lưu thông tin đối soát của cửa hàng."}
       </p>
-      {moi && (
+      {moi && !phuongThuc?.startsWith("vnpay_") && (
         <div className="mt-4 flex flex-wrap gap-3">
           <input
             aria-label="Mã giao dịch đối soát"

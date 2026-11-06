@@ -14,6 +14,7 @@ const mucQuanTri = [
   { nhan: "Danh mục", duongDan: "/admin/danh-muc", bieuTuong: "▤" },
   { nhan: "Người dùng", duongDan: "/admin/nguoi-dung", bieuTuong: "♙" },
   { nhan: "Đơn hàng", duongDan: "/admin/don-hang", bieuTuong: "▱" },
+  { nhan: "Khuyến mãi", duongDan: "/admin/khuyen-mai", bieuTuong: "%" },
   { nhan: "Nhập hàng", duongDan: "/admin/phieu-nhap", bieuTuong: "↓" },
   { nhan: "Xuất hàng", duongDan: "/admin/phieu-xuat", bieuTuong: "↑" },
   { nhan: "Báo cáo", duongDan: "/admin/bao-cao", bieuTuong: "▥" },
@@ -59,7 +60,7 @@ export default function ThanhBenQuanTri() {
   return (
     <aside className="flex w-full shrink-0 flex-col bg-[#09233d] text-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:self-start print:hidden">
       <div className="border-b border-white/10 px-5 py-5">
-        <Link href="/admin" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3" title="Về trang chủ shop">
           <span className="text-3xl" aria-hidden="true">
             🏍
           </span>
