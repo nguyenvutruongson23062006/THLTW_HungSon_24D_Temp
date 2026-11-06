@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type SyntheticEvent } from "react";
-import { layBaoCao, type BaoCaoQuanTri } from "@/lib/api/thongKeApi";
+import { useEffect, useState } from "react";
+import { type BaoCaoQuanTri } from "@/lib/api/thongKeApi";
+import { apiRequest } from "@/lib/api/apiClient";
 
 const tien = (n: number | string) => Number(n).toLocaleString("vi-VN") + "đ";
 const button =
@@ -17,58 +18,7 @@ const trangThai: Record<string, string> = {
   da_huy: "Đã hủy",
 };
 
-function xuatCsv(data: BaoCaoQuanTri) {
-  const dong: (string | number)[][] = [
-    ["Báo cáo cửa hàng", data.tu_ngay, data.den_ngay],
-    ["Doanh thu đã thu", data.tong_quan.doanh_thu],
-    ["Số đơn hàng", data.tong_quan.so_don_hang],
-    ["Số sản phẩm đã giao", data.tong_quan.so_san_pham_ban],
-    ["Chi phí nhập kho", data.tong_quan.chi_phi_nhap],
-    [],
-    ["Mã sản phẩm", "Tên sản phẩm", "Danh mục", "Tồn kho", "Giá bán"],
-    ...data.ton_kho.map((p) => [
-      p.ma_san_pham,
-      p.ten_san_pham,
-      p.ten_danh_muc,
-      p.so_luong_ton,
-      p.gia_ban,
-    ]),
-    [],
-    ["Sản phẩm bán chạy", "Số lượng", "Thành tiền sản phẩm"],
-    ...data.ban_chay.map((p) => [p.ten_san_pham, p.so_luong_ban, p.thanh_tien]),
-    [],
-    ["Ngày", "Doanh thu đã thu", "Số đơn đã thu"],
-    ...data.doanh_thu_theo_ngay.map((d) => [d.ngay, d.doanh_thu, d.so_don]),
-  ];
-  const csv = dong
-    .map((row) =>
-      row
-        .map((v) => {
-          const text = String(v ?? "");
-          return `"${(/^[=+@-]/.test(text) ? "'" + text : text).replaceAll('"', '""')}"`;
-        })
-        .join(","),
-    )
-    .join("\r\n");
-  const url = URL.createObjectURL(
-    new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8;" }),
-  );
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `bao-cao-${data.tu_ngay}-${data.den_ngay}.csv`;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-export default function ThongKeQuanTri({
-  baoCao = false,
-}: {
-  baoCao?: boolean;
-}) {
-  const homNay = new Date().toISOString().slice(0, 10);
-  const [tuNgay, setTuNgay] = useState(homNay.slice(0, 4) + "-01-01");
-  const [denNgay, setDenNgay] = useState(homNay);
-  const [boLoc, setBoLoc] = useState({ tu: tuNgay, den: denNgay, lan: 0 });
+export default function ThongKeQuanTri() {
   const [data, setData] = useState<BaoCaoQuanTri | null>(null);
   const [tai, setTai] = useState(true);
   const [loi, setLoi] = useState("");
@@ -76,7 +26,7 @@ export default function ThongKeQuanTri({
 
   useEffect(() => {
     const ac = new AbortController();
-    layBaoCao(boLoc.tu, boLoc.den, ac.signal)
+    apiRequest<BaoCaoQuanTri>("/admin/tong-quan", { signal: ac.signal })
       .then((v) => {
         if (!ac.signal.aborted) setData(v);
       })
@@ -88,38 +38,21 @@ export default function ThongKeQuanTri({
         if (!ac.signal.aborted) setTai(false);
       });
     return () => ac.abort();
-  }, [boLoc]);
+  }, []);
 
-  function apDung(e: SyntheticEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setTai(true);
-    setLoi("");
-    setBoLoc({ tu: tuNgay, den: denNgay, lan: boLoc.lan + 1 });
-  }
   const tonKho =
     data?.ton_kho.filter((p) =>
       `${p.ten_san_pham} ${p.ten_danh_muc}`
         .toLowerCase()
         .includes(tuKhoa.toLowerCase()),
     ) ?? [];
-  const buoc = Math.ceil((data?.doanh_thu_theo_ngay.length ?? 1) / 24);
-  const bieuDo: { ngay: string; doanh_thu: number }[] = [];
-  for (let i = 0; data && i < data.doanh_thu_theo_ngay.length; i += buoc) {
-    const nhom = data.doanh_thu_theo_ngay.slice(i, i + buoc);
-    bieuDo.push({
-      ngay: nhom[0].ngay,
-      doanh_thu: nhom.reduce((s, d) => s + Number(d.doanh_thu), 0),
-    });
-  }
-  const max = Math.max(1, ...bieuDo.map((d) => d.doanh_thu));
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-sky-600">Quản trị</p>
           <h1 className="mt-1 text-3xl font-bold">
-            {baoCao ? "Báo cáo kinh doanh" : "Tổng quan cửa hàng"}
+            Tổng quan cửa hàng
           </h1>
           <p className="mt-2 text-sm text-slate-500">
             Số liệu từ database. Doanh thu chỉ tính đơn đã thanh toán và chưa bị
@@ -127,66 +60,14 @@ export default function ThongKeQuanTri({
           </p>
         </div>
         <div className="flex gap-2 print:hidden">
-          {!baoCao && (
+          {(
             <Link href="/admin/bao-cao" className={button}>
               Xem báo cáo
             </Link>
           )}
-          <button
-            className={button}
-            disabled={!data || tai}
-            onClick={() => data && xuatCsv(data)}
-          >
-            Xuất CSV
-          </button>
-          <button className={button} onClick={() => window.print()}>
-            In báo cáo
-          </button>
+
         </div>
       </div>
-      <form
-        onSubmit={apDung}
-        className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 print:hidden"
-      >
-        <label className="text-sm text-slate-600">
-          Từ ngày
-          <input
-            required
-            type="date"
-            value={tuNgay}
-            max={denNgay}
-            onChange={(e) => setTuNgay(e.target.value)}
-            className="mt-1 block rounded-lg border border-slate-200 px-3 py-2"
-          />
-        </label>
-        <label className="text-sm text-slate-600">
-          Đến ngày
-          <input
-            required
-            type="date"
-            value={denNgay}
-            min={tuNgay}
-            onChange={(e) => setDenNgay(e.target.value)}
-            className="mt-1 block rounded-lg border border-slate-200 px-3 py-2"
-          />
-        </label>
-        <button
-          disabled={tai}
-          className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-        >
-          {tai ? "Đang tải..." : "Áp dụng"}
-        </button>
-        <button
-          type="button"
-          className={button}
-          onClick={() => {
-            setTuNgay(homNay.slice(0, 7) + "-01");
-            setDenNgay(homNay);
-          }}
-        >
-          Chọn tháng này
-        </button>
-      </form>
       {loi && (
         <p
           role="alert"
@@ -201,7 +82,7 @@ export default function ThongKeQuanTri({
         data && (
           <>
             <p className="text-sm text-slate-500">
-              Kỳ báo cáo: {data.tu_ngay} đến {data.den_ngay}
+              Tổng quan toàn bộ dữ liệu đến hiện tại · {data.tu_ngay} đến {data.den_ngay}
             </p>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {[
@@ -231,56 +112,6 @@ export default function ThongKeQuanTri({
                 </article>
               ))}
             </div>
-            {baoCao && (
-              <div className="grid gap-4 sm:grid-cols-3">
-                {[
-                  ["Chi phí nhập kho", tien(data.tong_quan.chi_phi_nhap)],
-                  ["Tổng số lượng tồn", data.tong_quan.tong_ton_kho],
-                  ["Sản phẩm sắp hết", data.tong_quan.so_san_pham_sap_het],
-                ].map(([nhan, value]) => (
-                  <div
-                    key={nhan}
-                    className="rounded-xl border border-slate-200 bg-white p-5"
-                  >
-                    <p className="text-sm text-slate-500">{nhan}</p>
-                    <p className="mt-2 text-xl font-bold">{value}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-            <section className="rounded-xl border border-slate-200 bg-white p-5">
-              <h2 className="font-semibold">Doanh thu theo thời gian</h2>
-              <p className="mt-1 text-xs text-slate-500">
-                {buoc > 1
-                  ? `Mỗi cột gộp tối đa ${buoc} ngày.`
-                  : "Mỗi cột là một ngày."}{" "}
-                Rê chuột vào cột để xem số tiền.
-              </p>
-              <div
-                className="mt-5 flex h-40 items-end gap-1 border-b border-slate-200"
-                role="img"
-                aria-label={`Biểu đồ doanh thu, tổng ${tien(data.tong_quan.doanh_thu)}`}
-              >
-                {bieuDo.map((d) => (
-                  <div
-                    key={d.ngay}
-                    className="flex h-full min-w-0 flex-1 items-end"
-                    title={`${d.ngay}: ${tien(d.doanh_thu)}`}
-                  >
-                    <div
-                      className={`w-full rounded-t ${d.doanh_thu > 0 ? "bg-sky-500" : "bg-slate-100"}`}
-                      style={{
-                        height: `${Math.max(2, (d.doanh_thu / max) * 100)}%`,
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="mt-2 flex justify-between text-xs text-slate-400">
-                <span>{data.tu_ngay}</span>
-                <span>{data.den_ngay}</span>
-              </div>
-            </section>
             <div className="grid gap-6 xl:grid-cols-2">
               <section className="overflow-hidden rounded-xl border border-slate-200 bg-white">
                 <div className="flex items-center justify-between border-b border-slate-100 p-5">
