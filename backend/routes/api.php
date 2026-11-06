@@ -16,6 +16,9 @@ use App\Http\Controllers\MatKhauController;
 use App\Http\Controllers\DatHangController;
 use App\Http\Controllers\KhuyenMaiController;
 use App\Http\Controllers\ThanhToanController;
+use App\Http\Controllers\LienHeShopController;
+
+Route::post('/cua-hang/lien-he', [LienHeShopController::class, 'store'])->middleware('throttle:5,1,lien-he-shop');
 
 Route::get('/thanh-toan/phuong-thuc', [ThanhToanController::class, 'phuongThuc']);
 Route::post('/thanh-toan/tao', [ThanhToanController::class, 'tao'])->middleware('throttle:20,1,tao-thanh-toan');
