@@ -1,5 +1,5 @@
-import ThongKeQuanTri from "@/components/admin/ThongKeQuanTri";
+import BaoCaoDoanhThu from "@/components/admin/BaoCaoDoanhThu";
 
 export default function BaoCaoQuanTri() {
-  return <ThongKeQuanTri baoCao />;
+  return <BaoCaoDoanhThu />;
 }
