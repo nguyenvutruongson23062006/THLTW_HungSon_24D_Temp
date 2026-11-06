@@ -21,8 +21,8 @@ class PublicProductImagesSeeder extends Seeder
             'Motul 5100 10W40 1L' => ['MOTUL 5100 4T 10W40.webp'],
             'Givi B32N' => ['b32nnew-3583.jpg'],
             'Givi Airflow' => ['givi-airflow-moto-descr.png'],
-            'Yamaha MT-07' => ['yamaha-mt07.jpg'],
-            'Yamaha YZF-R7' => ['yamaha-yzf-r7.jpg'],
+            'Yamaha MT-07' => ['catalog/mt-07.png'],
+            'Yamaha YZF-R7' => ['catalog/yzf-r7.png'],
             'Triumph Daytona 660 Snowdonia White' => ['daytona 660_snowdonia white.avif'],
         ];
         foreach ($mapping as $files) {
