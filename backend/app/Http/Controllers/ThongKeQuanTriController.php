@@ -56,7 +56,13 @@ class ThongKeQuanTriController extends Controller
         ]);
         $tu = isset($input['tu_ngay']) ? CarbonImmutable::parse($input['tu_ngay'])->startOfDay() : CarbonImmutable::now()->startOfMonth();
         $den = isset($input['den_ngay']) ? CarbonImmutable::parse($input['den_ngay'])->endOfDay() : CarbonImmutable::now()->endOfDay();
-        if ($tu->gt($den) || $tu->diffInDays($den) > 366) {
+        $tongQuan = $request->is('api/admin/tong-quan');
+        if ($tongQuan) {
+            $dauTien = DB::table('don_hang')->whereNull('ngay_xoa')->min('ngay_tao');
+            $tu = $dauTien ? CarbonImmutable::parse($dauTien)->startOfDay() : CarbonImmutable::now()->startOfMonth();
+            $den = CarbonImmutable::now()->endOfDay();
+        }
+        if ($tu->gt($den) || (! $tongQuan && $tu->diffInDays($den) > 366)) {
             throw ValidationException::withMessages(['tu_ngay' => 'Khoảng báo cáo phải hợp lệ và không quá 366 ngày.']);
         }
         $donHang = DB::table('don_hang')->whereNull('ngay_xoa')->whereBetween('ngay_tao', [$tu, $den]);
@@ -69,7 +75,7 @@ class ThongKeQuanTriController extends Controller
             ->groupBy('c.ma_san_pham', 'c.ten_san_pham')->orderByDesc('so_luong_ban')->limit(10)->get();
         $theoNgay = (clone $daThu)->select('ngay_tao', 'tong_tien')->get()->groupBy(fn ($don) => substr($don->ngay_tao, 0, 10));
         $bieuDo = [];
-        for ($ngay = $tu; $ngay->lte($den); $ngay = $ngay->addDay()) {
+        for ($ngay = $tu; ! $tongQuan && $ngay->lte($den); $ngay = $ngay->addDay()) {
             $nhom = $theoNgay->get($ngay->toDateString(), collect());
             $bieuDo[] = ['ngay' => $ngay->toDateString(), 'doanh_thu' => $nhom->sum('tong_tien'), 'so_don' => $nhom->count()];
         }
