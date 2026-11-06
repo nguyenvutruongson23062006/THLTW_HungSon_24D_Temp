@@ -20,6 +20,7 @@ export default function BoCucTrang({
     "/don-hang",
     "/order",
     "/cart",
+    "/lien-he",
   ].some(
     (path) =>
       duongDanHienTai === path || duongDanHienTai.startsWith(path + "/"),
