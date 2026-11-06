@@ -46,6 +46,10 @@ class AuthController extends Controller
             ], 401);
         }
 
+        if ($user->trang_thai !== 'hoat_dong') {
+            return response()->json(['message' => 'Tài khoản đang bị khóa hoặc tạm ngưng.'], 403);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

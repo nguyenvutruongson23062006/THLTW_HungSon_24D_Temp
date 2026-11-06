@@ -37,6 +37,11 @@ class DonHangController extends Controller
         ]);
 
         $tuKhoa = trim($duLieu['tu_khoa'] ?? '');
+        if ($request->boolean('cho_thanh_toan')) {
+            $truyVan->where('phuong_thuc_thanh_toan', 'chuyen_khoan')->where('trang_thai_thanh_toan', 'chua_thanh_toan')->where('trang_thai', '!=', 'da_huy');
+        } else {
+            $truyVan->where(function ($q) { $q->where('phuong_thuc_thanh_toan', '!=', 'chuyen_khoan')->orWhereIn('trang_thai_thanh_toan', ['da_thanh_toan', 'da_hoan_tien']); });
+        }
 
         if ($tuKhoa !== '') {
             $truyVan->where(function ($query) use ($tuKhoa) {
@@ -69,7 +74,6 @@ class DonHangController extends Controller
         }
 
         $phanTrang = $truyVan
-            ->orderByDesc('ngay_tao')
             ->orderByDesc('ma_don_hang')
             ->paginate($duLieu['per_page'] ?? 10)
             ->withQueryString();
@@ -113,6 +117,12 @@ class DonHangController extends Controller
                 'trang_thai_thanh_toan' => $donHang->trang_thai_thanh_toan,
                 'ngay_tao' => $donHang->ngay_tao,
                 'ngay_cap_nhat' => $donHang->ngay_cap_nhat,
+                'ma_giam_gia' => $donHang->ma_giam_gia,
+                'giao_dich_online' => DB::table('giao_dich_thanh_toan')->where('ma_don_hang', $maDonHang)->orderByDesc('id')->get(['ma_tham_chieu', 'phuong_thuc', 'so_tien', 'trang_thai', 'ma_giao_dich_cong', 'ma_phan_hoi', 'can_doi_soat', 'ngay_tao']),
+                'lich_su' => DB::table('lich_su_don_hang')->where('ma_don_hang', $maDonHang)->orderBy('ma_lich_su')->get(['trang_thai_cu', 'trang_thai_moi', 'ghi_chu', 'ngay_tao'])->map(function ($l) {
+                    $l->ngay_tao = \Illuminate\Support\Carbon::parse($l->ngay_tao)->toISOString();
+                    return $l;
+                }),
                 'chi_tiet_don_hangs' => $donHang->chiTietDonHangs->map(
                     fn ($chiTiet) => [
                         'ma_chi_tiet_don_hang' => $chiTiet->ma_chi_tiet_don_hang,
@@ -126,7 +136,38 @@ class DonHangController extends Controller
             ],
         ]);
     }
-        public function updateStatus(Request $request, int $maDonHang): JsonResponse
+    public function updatePayment(Request $request, int $maDonHang): JsonResponse
+    {
+        $data = $request->validate([
+            'trang_thai_thanh_toan' => ['required', Rule::in(['da_thanh_toan', 'da_hoan_tien'])],
+            'trang_thai_hien_tai' => 'required|string',
+            'ma_giao_dich' => 'nullable|string|max:255',
+        ]);
+
+        return DB::transaction(function () use ($data, $maDonHang) {
+            $don = DonHang::lockForUpdate()->findOrFail($maDonHang);
+            abort_if(app(\App\Services\ThanhToanService::class)->laOnline($don->phuong_thuc_thanh_toan), 422, 'Giao dịch VNPay được cập nhật tự động từ cổng. Hoàn tiền cần xử lý và đối soát qua VNPay, không ghi nhận thủ công tại đây.');
+            if ($don->trang_thai_thanh_toan !== $data['trang_thai_hien_tai']) {
+                return response()->json(['message' => 'Thanh toán đã thay đổi. Hãy tải lại đơn hàng.'], 409);
+            }
+            $hopLe = ($don->trang_thai_thanh_toan === 'chua_thanh_toan' && $data['trang_thai_thanh_toan'] === 'da_thanh_toan' && $don->trang_thai !== 'da_huy')
+                || ($don->trang_thai_thanh_toan === 'da_thanh_toan' && $data['trang_thai_thanh_toan'] === 'da_hoan_tien');
+            if (!$hopLe) {
+                return response()->json(['message' => 'Không được chuyển sang trạng thái thanh toán này.'], 422);
+            }
+            $don->trang_thai_thanh_toan = $data['trang_thai_thanh_toan'];
+            if ($don->phuong_thuc_thanh_toan === 'chuyen_khoan' && $data['trang_thai_thanh_toan'] === 'da_thanh_toan') app(\App\Services\DatHangService::class)->truKhoKhiNhanTien($don);
+            $don->ma_giao_dich = $data['ma_giao_dich'] ?? $don->ma_giao_dich;
+            $don->save();
+
+            return response()->json(['message' => 'Đã ghi nhận thanh toán.', 'data' => [
+                'trang_thai_thanh_toan' => $don->trang_thai_thanh_toan,
+                'ma_giao_dich' => $don->ma_giao_dich, 'ngay_cap_nhat' => $don->ngay_cap_nhat,
+            ]]);
+        });
+    }
+
+    public function updateStatus(Request $request, int $maDonHang): JsonResponse
     {
         $duLieu = $request->validate([
             'trang_thai' => [
@@ -143,7 +184,7 @@ class DonHangController extends Controller
             'trang_thai_hien_tai' => ['required', 'string'],
         ]);
 
-        return DB::transaction(function () use ($maDonHang, $duLieu) {
+        return DB::transaction(function () use ($request, $maDonHang, $duLieu) {
             $donHang = DonHang::query()
                 ->lockForUpdate()
                 ->findOrFail($maDonHang);
@@ -158,12 +199,15 @@ class DonHangController extends Controller
             $cacBuocChoPhep = [
                 'cho_xac_nhan' => ['da_xac_nhan', 'da_huy'],
                 'da_xac_nhan' => ['dang_giao', 'da_huy'],
+                'dang_xu_ly' => ['dang_giao', 'da_huy'],
                 'dang_giao' => ['hoan_tat'],
                 'hoan_tat' => [],
                 'da_huy' => [],
             ];
 
             $trangThaiMoi = $duLieu['trang_thai'];
+            abort_if($trangThaiMoi !== 'da_huy' && $donHang->phuong_thuc_thanh_toan === 'chuyen_khoan' && $donHang->trang_thai_thanh_toan === 'chua_thanh_toan', 422, 'Chuyển khoản chưa thanh toán chưa phải đơn hàng chính thức.');
+            abort_if($trangThaiMoi !== 'da_huy' && app(\App\Services\ThanhToanService::class)->laOnline($donHang->phuong_thuc_thanh_toan) && $donHang->trang_thai_thanh_toan !== 'da_thanh_toan', 422, 'Cần đợi VNPay xác nhận thanh toán trước khi xử lý đơn.');
 
             if (!in_array(
                 $trangThaiMoi,
@@ -175,16 +219,19 @@ class DonHangController extends Controller
                 ], 422);
             }
 
-            // Chưa có luồng hoàn tiền nên không hủy đơn đã thu tiền.
+            // Chỉ hủy đơn đã thu tiền sau khi ghi nhận hoàn tiền.
             if (
                 $trangThaiMoi === 'da_huy'
-                && $donHang->trang_thai_thanh_toan !== 'chua_thanh_toan'
+                && $donHang->trang_thai_thanh_toan === 'da_thanh_toan'
             ) {
                 return response()->json([
                     'message' => 'Đơn này cần xử lý thanh toán/hoàn tiền trước khi hủy.',
                 ], 422);
             }
 
+            $service = app(\App\Services\DatHangService::class);
+            if ($trangThaiMoi === 'da_huy') $service->hoanKho($donHang);
+            $service->lichSu($maDonHang, $donHang->trang_thai, $trangThaiMoi, $request->user()->getKey(), 'Quản trị viên cập nhật đơn hàng.');
             $donHang->trang_thai = $trangThaiMoi;
             $donHang->save();
 

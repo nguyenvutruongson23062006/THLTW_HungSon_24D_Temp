@@ -1,4 +1,5 @@
 "use client";
+import { usePhanTrangDanhSach } from "@/components/admin/PhanTrangDanhSach";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -21,6 +22,7 @@ function dinhDangTien(
 }
 
 export default function ThungRacSanPham() {
+  const phanTrang = usePhanTrangDanhSach();
   const [danhSachSanPham, setDanhSachSanPham] = useState<
     SanPham[]
   >([]);
@@ -196,7 +198,7 @@ export default function ThungRacSanPham() {
               </thead>
 
               <tbody className="divide-y divide-slate-100">
-                {danhSachSanPham.map((sanPham) => {
+                {phanTrang.cat([...danhSachSanPham].sort((a, b) => b.ma_san_pham - a.ma_san_pham)).map((sanPham) => {
                   const dangXuLy =
                     maDangXuLy === sanPham.ma_san_pham;
 
@@ -263,6 +265,7 @@ export default function ThungRacSanPham() {
                 })}
               </tbody>
             </table>
+{phanTrang.thanh(danhSachSanPham.length)}
           </div>
         )}
       </section>

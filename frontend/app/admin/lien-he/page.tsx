@@ -1,3 +1,6 @@
+import TrangQuanLyDuLieu from "@/components/admin/TrangQuanLyDuLieu";
+import { CAU_HINH_DU_LIEU } from "@/lib/admin/cauHinhDuLieu";
+
 export default function QuanLyLienHe() {
-  return <h1 className="text-2xl font-bold">Quản lý liên hệ</h1>;
+  return <TrangQuanLyDuLieu cauHinh={CAU_HINH_DU_LIEU["lien-he"]} />;
 }

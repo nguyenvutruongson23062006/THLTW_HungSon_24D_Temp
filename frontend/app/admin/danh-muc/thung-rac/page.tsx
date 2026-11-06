@@ -1,4 +1,5 @@
 "use client";
+import { usePhanTrangDanhSach } from "@/components/admin/PhanTrangDanhSach";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -42,6 +43,7 @@ function AnhDaiDienDanhMuc({
 }
 
 export default function ThungRacDanhMuc() {
+  const phanTrang = usePhanTrangDanhSach();
   const [danhSachDanhMuc, setDanhSachDanhMuc] = useState<DanhMuc[]>([]);
   const [dangTai, setDangTai] = useState(true);
   const [loi, setLoi] = useState("");
@@ -197,7 +199,7 @@ export default function ThungRacDanhMuc() {
               </thead>
 
               <tbody className="divide-y divide-slate-100">
-                {danhSachDanhMuc.map((danhMuc) => {
+                {phanTrang.cat([...danhSachDanhMuc].sort((a, b) => b.ma_danh_muc - a.ma_danh_muc)).map((danhMuc) => {
                   const dangXuLy =
                     maDangXuLy === danhMuc.ma_danh_muc;
 
@@ -255,6 +257,7 @@ export default function ThungRacDanhMuc() {
                 })}
               </tbody>
             </table>
+{phanTrang.thanh(danhSachDanhMuc.length)}
           </div>
         )}
       </section>

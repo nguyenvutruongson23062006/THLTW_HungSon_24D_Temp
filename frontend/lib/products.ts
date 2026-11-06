@@ -27,6 +27,7 @@ export type Product = {
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api";
 
 type BackendProduct = {
+  trang_thai?: string;
   ma_san_pham: number;
   ten_san_pham: string;
   ma_danh_muc: number;
@@ -94,13 +95,15 @@ function mapProduct(product: BackendProduct): Product {
     giaKhuyenMai: Number(product.gia_khuyen_mai ?? product.gia_ban),
 
     image: product.anh_dai_dien ?? "/products/default.jpg",
-    images: Array.from(new Set([
-      ...(product.anh_dai_dien ? [product.anh_dai_dien] : []),
-      ...(product.hinh_anh_san_phams ?? [])
-        .slice()
-        .sort((a, b) => a.thu_tu_hien_thi - b.thu_tu_hien_thi)
-        .map((image) => image.duong_dan),
-    ])),
+    images: Array.from(
+      new Set([
+        ...(product.anh_dai_dien ? [product.anh_dai_dien] : []),
+        ...(product.hinh_anh_san_phams ?? [])
+          .slice()
+          .sort((a, b) => a.thu_tu_hien_thi - b.thu_tu_hien_thi)
+          .map((image) => image.duong_dan),
+      ]),
+    ),
 
     category: mapCategory(product.ma_danh_muc),
 
@@ -139,7 +142,9 @@ export async function getProducts(): Promise<Product[]> {
     ? data
     : (data.data ?? data.products ?? []);
 
-  return items.map(mapProduct);
+  return items
+    .filter((p) => !p.trang_thai || p.trang_thai === "hoat_dong")
+    .map(mapProduct);
 }
 
 export async function getProductById(id: number): Promise<Product | null> {

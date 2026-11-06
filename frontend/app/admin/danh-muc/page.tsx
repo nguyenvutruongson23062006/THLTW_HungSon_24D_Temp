@@ -1,4 +1,5 @@
 "use client";
+import { usePhanTrangDanhSach } from "@/components/admin/PhanTrangDanhSach";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -70,6 +71,7 @@ function taoDuongDan(tenDanhMuc: string) {
 }
 
 export default function QuanLyDanhMuc() {
+  const phanTrang = usePhanTrangDanhSach();
   const [danhSachDanhMuc, setDanhSachDanhMuc] = useState<DanhMuc[]>([]);
   const [tuKhoa, setTuKhoa] = useState("");
   const [trangThaiLoc, setTrangThaiLoc] = useState("tat_ca");
@@ -102,7 +104,7 @@ export default function QuanLyDanhMuc() {
     taiDanhSachDanhMuc();
   }, []);
 
-  const danhMucHienThi = danhSachDanhMuc.filter((danhMuc) => {
+  const danhMucHienThi = [...danhSachDanhMuc].sort((a, b) => b.ma_danh_muc - a.ma_danh_muc).filter((danhMuc) => {
     const khopTuKhoa = `${danhMuc.ten_danh_muc} ${danhMuc.duong_dan}`
       .toLowerCase()
       .includes(tuKhoa.toLowerCase());
@@ -345,7 +347,7 @@ export default function QuanLyDanhMuc() {
               </thead>
 
               <tbody className="divide-y divide-slate-100">
-                {danhMucHienThi.map((danhMuc) => (
+                {phanTrang.cat(danhMucHienThi).map((danhMuc) => (
                   <tr
                     key={danhMuc.ma_danh_muc}
                     className="text-slate-700"
@@ -420,6 +422,7 @@ export default function QuanLyDanhMuc() {
                 ))}
               </tbody>
             </table>
+{phanTrang.thanh(danhMucHienThi.length)}
 
             {danhMucHienThi.length === 0 && (
               <p className="p-8 text-center text-sm text-slate-500">

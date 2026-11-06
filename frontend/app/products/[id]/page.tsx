@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import SanPhamCungHang from "@/components/SanPhamCungHang";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartButton from "@/components/AddToCartButtonProps";
 import { getProductById, getProducts } from "@/lib/products";
@@ -33,7 +33,9 @@ export default async function ProductDetailPage({
 
   const allProducts = await getProducts();
 
-  const relatedProducts = allProducts.filter((item) => item.id !== product.id);
+  const relatedProducts = allProducts.filter(
+    (item) => item.id !== product.id && item.brandId === product.brandId,
+  );
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
@@ -82,36 +84,7 @@ export default async function ProductDetailPage({
         </div>
       </div>
 
-      <section className="mt-16">
-        <h2 className="mb-8 text-2xl font-bold text-white">Mô tô liên quan</h2>
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
-          {relatedProducts.map((item) => (
-            <Link
-              key={item.id}
-              href={`/products/${item.id}`}
-              className="overflow-hidden rounded-xl border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-            >
-              <Image
-                src={item.image}
-                alt={item.ten}
-                width={300}
-                height={300}
-                loading="eager"
-                className="h-48 w-full object-cover"
-              />
-
-              <div className="p-4">
-                <h3 className="font-semibold text-gray-900">{item.ten}</h3>
-
-                <p className="mt-2 font-bold text-red-600">
-                  {item.giaKhuyenMai.toLocaleString("vi-VN")} ₫
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <SanPhamCungHang key={product.id} sanPhams={relatedProducts} hang={product.brand} />
     </main>
   );
 }

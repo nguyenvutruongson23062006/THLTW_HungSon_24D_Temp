@@ -1,3 +1,5 @@
+import { layTokenDangNhap } from "./apiClient";
+
 const API_URL = (
   process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api"
 ).replace(/\/$/, "");
@@ -38,12 +40,10 @@ export async function layDanhSachDonHang(
   boLoc: BoLocDonHang,
   signal?: AbortSignal,
 ): Promise<DanhSachDonHangResponse> {
-  const token = sessionStorage.getItem("admin_token")?.trim();
+  const token = layTokenDangNhap()?.trim();
 
   if (!token) {
-    throw new Error(
-      "Chưa có token Admin. Kiểm tra admin_token trong Session Storage.",
-    );
+    throw new Error("Vui lòng đăng nhập tài khoản quản trị để xem đơn hàng.");
   }
 
   const params = new URLSearchParams({
@@ -72,9 +72,7 @@ export async function layDanhSachDonHang(
   );
 
   if (response.status === 401) {
-    throw new Error(
-      "Token không hợp lệ hoặc đã hết hiệu lực. Hãy lấy lại token Admin.",
-    );
+    throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
   }
 
   if (response.status === 403) {
@@ -103,6 +101,14 @@ export interface ChiTietSanPhamDonHang {
 }
 
 export interface ChiTietDonHang extends DonHang {
+  giao_dich_online?: {
+    ma_tham_chieu: string;
+    so_tien: string | number;
+    trang_thai: string;
+    ma_giao_dich_cong: string | null;
+    ma_phan_hoi: string | null;
+    can_doi_soat: boolean | number;
+  }[];
   ma_nguoi_dung: number | null;
   dia_chi_email: string | null;
   dia_chi_giao_hang: string;
@@ -112,6 +118,13 @@ export interface ChiTietDonHang extends DonHang {
   giam_gia: string | number;
   ngay_cap_nhat: string | null;
   chi_tiet_don_hangs: ChiTietSanPhamDonHang[];
+  ma_giam_gia?: string | null;
+  lich_su?: {
+    trang_thai_cu: string | null;
+    trang_thai_moi: string;
+    ghi_chu: string;
+    ngay_tao: string;
+  }[];
 }
 
 export async function layChiTietDonHang(
@@ -122,10 +135,10 @@ export async function layChiTietDonHang(
     throw new Error("Mã đơn hàng không hợp lệ.");
   }
 
-  const token = sessionStorage.getItem("admin_token")?.trim();
+  const token = layTokenDangNhap()?.trim();
 
   if (!token) {
-    throw new Error("Chưa có token Admin trong Session Storage.");
+    throw new Error("Vui lòng đăng nhập tài khoản quản trị.");
   }
 
   const response = await fetch(`${API_URL}/admin/don-hang/${maDonHang}`, {
@@ -138,7 +151,7 @@ export async function layChiTietDonHang(
   });
 
   if (response.status === 401) {
-    throw new Error("Token không hợp lệ hoặc đã hết hiệu lực.");
+    throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
   }
 
   if (response.status === 403) {
@@ -177,10 +190,10 @@ export async function capNhatTrangThaiDonHang(
   trangThaiHienTai: string,
   trangThaiMoi: string,
 ): Promise<KetQuaCapNhatTrangThai> {
-  const token = sessionStorage.getItem("admin_token")?.trim();
+  const token = layTokenDangNhap()?.trim();
 
   if (!token) {
-    throw new Error("Chưa có token Admin.");
+    throw new Error("Vui lòng đăng nhập tài khoản quản trị.");
   }
 
   const response = await fetch(

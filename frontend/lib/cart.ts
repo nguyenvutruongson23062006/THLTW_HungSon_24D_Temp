@@ -10,6 +10,16 @@ export type CartItem = {
 
 const CART_KEY = "cart";
 
+export function truSanPhamDaThanhToan(dong: { ma_san_pham: number; so_luong: number }[]) {
+  const gio = loadCartFromStorage();
+  cachedCart = gio.flatMap((d) => {
+    const daMua = dong.find((p) => p.ma_san_pham === d.id)?.so_luong ?? 0;
+    return d.quantity > daMua ? [{ ...d, quantity: d.quantity - daMua }] : [];
+  });
+  localStorage.setItem(CART_KEY, JSON.stringify(cachedCart));
+  notifyCartChange();
+}
+
 const emptyCart: CartItem[] = [];
 
 let cachedCart: CartItem[] = emptyCart;
@@ -94,7 +104,8 @@ export function addToCart(item: CartItem): boolean {
     return false;
   }
 
-  const cart = [...cachedCart];
+  // Đọc bản lưu mới nhất để không mất giỏ khi mở trực tiếp hoặc tải lại trang sản phẩm.
+  const cart = loadCartFromStorage();
 
   const existingItem = cart.find((cartItem) => cartItem.id === item.id);
 
@@ -170,4 +181,27 @@ export function clearCart(): void {
   localStorage.removeItem(CART_KEY);
 
   notifyCartChange();
+}
+
+export function dongBoGioHang(
+  products: {
+    id: number;
+    ten: string;
+    gia: number;
+    giaKhuyenMai: number;
+    image: string;
+    tonKho: number;
+  }[],
+): boolean {
+  const truoc = JSON.stringify(cachedCart);
+  const bang = new Map(products.map((p) => [p.id, p]));
+  cachedCart = cachedCart.flatMap((item) => {
+    const p = bang.get(item.id);
+    return !p || p.tonKho <= 0
+      ? []
+      : [{ ...item, ...p, quantity: Math.min(item.quantity, p.tonKho) }];
+  });
+  localStorage.setItem(CART_KEY, JSON.stringify(cachedCart));
+  notifyCartChange();
+  return truoc !== JSON.stringify(cachedCart);
 }
