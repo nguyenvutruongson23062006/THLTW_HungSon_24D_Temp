@@ -38,6 +38,7 @@ export default function Navbar() {
             Giỏ hàng
           </Link>
 
+          <Link href="/lien-he" className="text-slate-300 hover:text-blue-400">Liên hệ</Link>
           {user ? (
             <>
               <Link
